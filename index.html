@@ -6,11 +6,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Task Manager</title>
     <link rel="stylesheet" href="style.css">
-</head>
-<body>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&family=Indie+Flower&family=Montserrat:wght@200;300;400;600&display=swap" rel="stylesheet">
     <header class="header">
-        <button id="collapseBtn">Collapse</button>
-        <h1>Task Manager</h1>
+        <!-- <button id="collapseBtn">Collapse</button> -->
+        <div class="titleDiv">
+            <img id="collapseBtn" src="./images/expand3.png" alt="">
+            <h1>Task Manager</h1>
+        </div>
         <button id="signInBtn">Options</button>
     </header>
 
@@ -42,8 +46,13 @@
             <button id="sortBtn">Sort</button>
         </div>
         <hr>
-        <button id="addTaskBtn">Add Task</button>
-        <div class="tasksContainer"></div>
+        <!-- <button id="addTaskBtn"> ⊕ Add Task</button> -->
+        <div class="tasksContainer">
+            <div id="addTask">
+                <img class= "symbol" src="./images/add-4.png" alt="add">
+                <div> Add Task</div>
+            </div>
+        </div>
     </div>
 
     <footer> Marco Santinini - The Odin Project 2023</footer>

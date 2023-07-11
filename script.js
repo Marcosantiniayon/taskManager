@@ -1,5 +1,5 @@
 const collapseBtn = document.getElementById('collapseBtn');
-const addTaskBtn = document.getElementById('addTaskBtn')
+const addTaskBtn = document.getElementById('addTask')
 const tasksContainer = document.querySelector('.tasksContainer');
 const nav = document.querySelector('nav');
 const content = document.querySelector('.content');
@@ -15,27 +15,34 @@ collapseBtn.addEventListener('click', function() {
       nav.style.zIndex = '2';
       content.style.gridColumn = '1 / 3';
       content.classList.add('overlay');
-      console.log('collapse');
+      collapseBtn.src = './images/collapse3.png';
+    //   collapseBtn.style.marginLeft = '140px';
     } else {
       nav.style.display = 'none';
       nav.style.zIndex = '';
       content.style.gridColumn = '1 / -1';
       content.classList.remove('overlay');
       console.log('expand');
+      collapseBtn.src = './images/expand3.png';
+    //   collapseBtn.style.marginLeft = '12px';
     }
   } else {
     if (navDisplayStyle === 'none') {
-      nav.style.display = '';
+      nav.style.display = 'block';
       nav.style.zIndex = '';
-      content.style.gridColumn = '';
+      content.style.gridColumn = '2/3';
       content.classList.remove('overlay');
       console.log('collapse');
+      collapseBtn.src = './images/collapse3.png';
+    //   collapseBtn.style.marginLeft = '240px';
     } else {
       nav.style.display = 'none';
       nav.style.zIndex = '';
       content.style.gridColumn = '1 / -1';
       content.classList.remove('overlay');
       console.log('expand');
+      collapseBtn.src = './images/expand3.png';
+    //   collapseBtn.style.marginLeft = '12px';
     }
   }
 });
@@ -73,7 +80,10 @@ addTaskBtn.addEventListener('click', function() {
 
             const taskImportance = document.createElement('div');
             taskImportance.classList.add('taskDueDate');
-            taskImportance.textContent = '(!)';
+            const importanceImg = document.createElement('img');
+            importanceImg.src = './images/warning_red.png';
+            importanceImg.classList.add('symbol');
+            taskImportance.appendChild(importanceImg);
 
             const taskOptions = document.createElement('div');
             taskOptions.classList.add('taskOptions');
