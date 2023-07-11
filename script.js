@@ -1,4 +1,5 @@
 const collapseBtn = document.getElementById('collapseBtn');
+const addTaskBtn = document.getElementById('addTaskBtn')
 const nav = document.querySelector('nav');
 const content = document.querySelector('.content');
 
@@ -36,4 +37,8 @@ collapseBtn.addEventListener('click', function() {
       console.log('expand');
     }
   }
+});
+
+addTaskBtn.addEventListener('click', function() {
+    console.log('adding task');    
 });

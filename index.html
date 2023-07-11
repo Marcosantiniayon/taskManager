@@ -11,8 +11,9 @@
     <header class="header">
         <button id="collapseBtn">Collapse</button>
         <h1>Task Manager</h1>
-        <button id="optionsBtn">Options</button>
+        <button id="signInBtn">Options</button>
     </header>
+
     <nav class="sidebar">
         <div class="timelinesDiv">
             <h3>Timelines</h3>
@@ -34,7 +35,17 @@
             </ul>
         </div>
     </nav>
-    <div class="content"></div>
+
+    <div class="content">
+        <div class="titleNsort">
+            <h1 id="title">Title</h1>
+            <button id="sortBtn">Sort</button>
+        </div>
+        <hr>
+        <button id="addTaskBtn">Add Task</button>
+        <div class="tasks"></div>
+    </div>
+
     <footer> Marco Santinini - The Odin Project 2023</footer>
     <script src="script.js"></script>
 </body>
