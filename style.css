@@ -8,9 +8,19 @@ body{
     min-width: 353px;
     font-family: 'Montserrat', sans-serif;
 }
+hr{
+    border-color: rgba(226, 224, 255, 0.3);
+}
 
 button{
-    height: 25px;
+    height: 35px;
+    width: 80px;
+    border-radius: 24px;
+    padding: 6px;
+    border: none;
+}
+button:hover{
+    background-color: rgb(224, 220, 241);
 }
 
 .symbol{
@@ -62,9 +72,17 @@ nav{
     padding: 24px;
 }
 
+.categoriesDiv{
+    margin-top: 60px;
+}
 
 ul{
     list-style-type: none;    
+}
+
+li{
+    margin-bottom: 16px;
+    font-weight: 500;
 }
 /* ------------------------------------------------- */
 .content{
@@ -87,8 +105,6 @@ ul{
 }
 
 #sortBtn{
-    height: 20px;
-    width: 60px;
     justify-self: flex-end;
 }
 
