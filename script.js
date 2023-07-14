@@ -1,8 +1,14 @@
 const collapseBtn = document.getElementById('collapseBtn');
-const addTaskBtn = document.getElementById('addTask')
-const tasksContainer = document.querySelector('.tasksContainer');
 const nav = document.querySelector('nav');
 const content = document.querySelector('.content');
+const addTaskBtn = document.getElementById('addTask')
+let taskCounter = 0;
+let modal = document.getElementById("myModal");
+let span = document.getElementsByClassName("close")[0];
+
+
+const tasksContainer = document.querySelector('.tasksContainer');
+
 
 collapseBtn.addEventListener('click', function() {
   const navDisplayStyle = window.getComputedStyle(nav).display;
@@ -48,8 +54,11 @@ collapseBtn.addEventListener('click', function() {
 });
 
 addTaskBtn.addEventListener('click', function() {
+    taskCounter++;
+
     const taskDiv = document.createElement('div');
     taskDiv.classList.add('taskDiv');
+    taskDiv.id = `task-${taskCounter}`;
 
         const taskPrim = document.createElement('div');
         taskPrim.classList.add('taskPrim');
@@ -99,7 +108,28 @@ addTaskBtn.addEventListener('click', function() {
     tasksContainer.appendChild(taskDiv);
     tasksContainer.appendChild(linebreak);
 
-    checkbox.addEventListener('change', function() {
+    // Open / Edit Tasks
+    taskDiv.addEventListener('click', function(event) {
+        // Stop propagation to prevent this event from triggering on checkbox click
+        event.stopPropagation();
+        
+        console.log(`Task div clicked: ${this.id}`);
+        
+        // Fill the modal with the relevant information
+        document.getElementById("modalTitle").textContent = taskTitle.textContent;
+        document.getElementById("modalCategory").textContent = taskCategory.textContent;
+        document.getElementById("modalDueDate").textContent = taskDueDate.textContent;
+        const importance = document.getElementById("modalImportance");
+        importance.src = importanceImg.src;
+        importance.classList.add('symbol');
+        
+
+        // Show the modal
+        modal.style.display = "block";
+    });
+
+    checkbox.addEventListener('click', function(event) {
+        event.stopPropagation();
         if (this.checked) {
           taskTitle.classList.add('complete');
           taskCategory.classList.add('complete');
@@ -112,4 +142,16 @@ addTaskBtn.addEventListener('click', function() {
           taskImportance.classList.remove('complete');
         }
       });
+
 });
+
+// Closing Modal
+span.onclick = function() {
+    modal.style.display = "none";
+  }
+  // Closes Modal when clicking outside of it     
+  window.onclick = function(event) {
+    if (event.target == modal) {
+      modal.style.display = "none";
+    }
+  }
