@@ -23,7 +23,7 @@ button:hover{
     background-color: rgb(224, 220, 241);
 }
 
-.symbol{
+.symbol, #modalImportance{
     height: 20px;
 }
 /* ------------------------------------------------- */
@@ -195,15 +195,16 @@ footer{
     height: 100%; 
     overflow: auto; 
     background-color: rgb(0,0,0);
-    background-color: rgba(0,0,0,0.4); 
+    background-color: rgba(0,0,0,0.5); 
   }
   
   .modal-content {
     background-color: #fefefe;
     margin: 15% auto;
     padding: 20px;
-    border: 12px solid #888;
+    min-width: 310px;
     width: 80%; 
+    border-radius: 12px;
   }
 
   .modal-top, .modal-mid{
@@ -219,12 +220,26 @@ footer{
     gap: 18px;
     margin-top: 0px;
     margin-bottom: 0px;
+    font-size: 1.35EM;
+  }
+  #modalTitle{
+    border: 0px;
   }
 
   .modal-mid{
     display: flex;
   }
   
+  textarea {
+    width: 100%; 
+    border-radius: 8px;
+    resize: none;
+    font-family: 'Montserrat', sans-serif;
+    padding: 8px;
+    box-sizing: border-box;
+}
+
+
   .close {
     color: #aaa;
     float: right;

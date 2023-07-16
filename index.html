@@ -9,6 +9,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&family=Indie+Flower&family=Montserrat:wght@200;300;400;600&display=swap" rel="stylesheet">
+</head>
+<body>
     <header class="header">
         <!-- <button id="collapseBtn">Collapse</button> -->
         <div class="titleDiv">
@@ -46,7 +48,6 @@
             <button id="sortBtn">Sort</button>
         </div>
         <hr>
-        <!-- <button id="addTaskBtn"> ⊕ Add Task</button> -->
         <div class="tasksContainer">
             <div id="addTask">
                 <img class= "symbol" src="./images/add-4.png" alt="add">
@@ -59,15 +60,34 @@
         <div class="modal-content">
           <span class="close">&times;</span>
           <div class="modal-top">
-            <h2 id="modalTitle"></h2>
+            <input type="text" id="modalTitle" placeholder="New Task">
+            <div id="myModal" class="modal">
+                <!-- ... -->
+                <select id="modalCategorySelect">
+                    <option value="Inbox"></option>
+                </select>
+                <!-- ... -->
+            </div>
+            
             <p id="modalCategory"></p>
           </div>
           <div class="modal-mid">
             <p id="modalDueDate"></p>
-            <img id="modalImportance"></img>
+            <select id="modalImportanceSelect" label="Priority">
+                <option  value="./images/warning_red.png">Highest</option>
+                <option value="./images/warning_orange.png">Highe</option>
+                <option value="./images/warning_yellow.png">Medium</option>
+                <option value="./images/warning_grey.png" selected>Low</option>
+            </select>
           </div>
-          <textarea id="modalDescription" rows="4" cols="50">
-          </textarea>
+          <div class="modal-bottom">
+            <textarea id="modalDescription" rows="6" placeholder="Description"></textarea>
+            <button id="cancelBtn">Cancel</button>
+            <button id="okBtn">Ok</button>
+
+
+          </div>
+
         </div>
       </div>
 

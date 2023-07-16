@@ -1,14 +1,49 @@
 const collapseBtn = document.getElementById('collapseBtn');
 const nav = document.querySelector('nav');
 const content = document.querySelector('.content');
-const addTaskBtn = document.getElementById('addTask')
+const addTaskDiv = document.getElementById('addTask');
+const okBtn = document.getElementById('okBtn')
 let taskCounter = 0;
+let categories = [];
 let modal = document.getElementById("myModal");
 let span = document.getElementsByClassName("close")[0];
 
 
-const tasksContainer = document.querySelector('.tasksContainer');
+// Task Class
+class Task {
+    constructor(title = 'New Task', description, dueDate, priority) {
+        this.title = title || 'New Task';
+        this.description = description;
+        this.dueDate = dueDate;
+        this.priority = priority;
+        this.complete = false; // we are assuming a new task is not completed
+    }
 
+    toggleComplete() {
+        this.complete = !this.complete;
+    }
+}
+
+// Category Class
+class Category {
+    constructor(name) {
+        this.name = name;
+        this.tasks = [];
+    }
+
+    addTask(task) {
+        this.tasks.push(task);
+    }
+
+    removeTask(taskTitle) {
+        this.tasks = this.tasks.filter(task => task.title !== taskTitle);
+    }
+}
+
+let inboxCategory = new Category('Inbox');
+categories.push(inboxCategory);
+
+const tasksContainer = document.querySelector('.tasksContainer');
 
 collapseBtn.addEventListener('click', function() {
   const navDisplayStyle = window.getComputedStyle(nav).display;
@@ -53,9 +88,51 @@ collapseBtn.addEventListener('click', function() {
   }
 });
 
-addTaskBtn.addEventListener('click', function() {
+addTaskDiv.addEventListener('click', function() {
+    // Reset the modal input fields
+    document.getElementById("modalTitle").value = "New Task";
+    document.getElementById("modalCategorySelect").value = "Inbox";
+        // Set the current date as the default due date
+        let today = new Date();
+        let dd = String(today.getDate()).padStart(2, '0');
+        let mm = String(today.getMonth() + 1).padStart(2, '0');
+        let yyyy = today.getFullYear();
+        today = yyyy + '-' + mm + '-' + dd;
+    document.getElementById("modalDueDate").value = today;
+    document.getElementById("modalImportanceSelect").src = "./images/warning_grey.png";
+    document.getElementById("modalDescription").value = "";
+
+    // Show the modal
+    modal.style.display = "block";
+});
+
+okBtn.addEventListener('click', function() {
     taskCounter++;
 
+    // Get the 'Inbox' category
+    let inboxCategory = categories.find(category => category.name === 'Inbox');
+
+    // Get the values from the modal
+    let title = document.getElementById("modalTitle").value;
+    let category = document.getElementById("modalCategorySelect").value;
+    let dueDate = document.getElementById("modalDueDate").value;
+    let importance = document.getElementById("modalImportanceSelect").value;
+    let description = document.getElementById("modalDescription").value;
+
+    // Create Task
+    let newTask = new Task(title, description, dueDate, importance);
+    
+        // Find the category and add the task to it
+        let categoryObj = categories.find(cat => cat.name === category);
+        if (!categoryObj) {
+            // If the category doesn't exist, create it
+            categoryObj = new Category(category);
+            categories.push(categoryObj);
+        }
+        categoryObj.addTask(newTask);
+        inboxCategory.addTask(newTask);
+    
+    // Add Task Div
     const taskDiv = document.createElement('div');
     taskDiv.classList.add('taskDiv');
     taskDiv.id = `task-${taskCounter}`;
@@ -69,11 +146,11 @@ addTaskBtn.addEventListener('click', function() {
 
             const taskTitle = document.createElement('div');
             taskTitle.classList.add('taskTitle');
-            taskTitle.textContent = 'New Task';
+            taskTitle.textContent = title;
 
             const taskCategory = document.createElement('div');
             taskCategory.classList.add('taskCategory');
-            taskCategory.textContent = '(Category)';
+            taskCategory.textContent = category;
 
             taskPrim.appendChild(checkbox);
             taskPrim.appendChild(taskTitle);
@@ -85,7 +162,7 @@ addTaskBtn.addEventListener('click', function() {
 
             const taskDueDate = document.createElement('div');
             taskDueDate.classList.add('taskDueDate');
-            taskDueDate.textContent = '01/01/2023';
+            taskDueDate.textContent = dueDate;
 
             const taskImportance = document.createElement('div');
             taskImportance.classList.add('taskDueDate');
@@ -94,14 +171,8 @@ addTaskBtn.addEventListener('click', function() {
             importanceImg.classList.add('symbol');
             taskImportance.appendChild(importanceImg);
 
-            const taskOptions = document.createElement('div');
-            taskOptions.classList.add('taskOptions');
-            taskOptions.textContent = '︙'
-
             taskSec.appendChild(taskDueDate);
             taskSec.appendChild(taskImportance);
-            taskSec.appendChild(taskOptions);
-
 
     const linebreak = document.createElement('hr');
   
@@ -116,13 +187,31 @@ addTaskBtn.addEventListener('click', function() {
         console.log(`Task div clicked: ${this.id}`);
         
         // Fill the modal with the relevant information
-        document.getElementById("modalTitle").textContent = taskTitle.textContent;
-        document.getElementById("modalCategory").textContent = taskCategory.textContent;
-        document.getElementById("modalDueDate").textContent = taskDueDate.textContent;
-        const importance = document.getElementById("modalImportance");
-        importance.src = importanceImg.src;
+        document.getElementById("modalTitle").value = taskTitle.textContent;
+        document.getElementById("modalCategorySelect").value = taskCategory.textContent;
+        document.getElementById("modalDueDate").value = taskDueDate.textContent;
+        let importanceImg = document.getElementById("modalImportanceImg");
+        importanceImg.src = taskImportance.firstChild.src;
         importance.classList.add('symbol');
         
+        let modalCategorySelect = document.getElementById("modalCategorySelect");
+
+        // Clear the dropdown
+        modalCategorySelect.innerHTML = "";
+
+        // Create a new option for each category
+        for (let category of categories) {
+            let option = document.createElement("option");
+            option.text = category.name;
+            option.value = category.name;
+
+            // If this category is the current category of the task, select it
+            if (category.name === taskCategory.textContent) {
+                option.selected = true;
+            }
+
+            modalCategorySelect.appendChild(option);
+        }
 
         // Show the modal
         modal.style.display = "block";
@@ -150,7 +239,7 @@ span.onclick = function() {
     modal.style.display = "none";
   }
   // Closes Modal when clicking outside of it     
-  window.onclick = function(event) {
+window.onclick = function(event) {
     if (event.target == modal) {
       modal.style.display = "none";
     }
