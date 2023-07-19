@@ -44,52 +44,51 @@
 
     <div class="content">
         <div class="titleNsort">
-            <h2 id="title">Title</h2>
+            <h2 id="categoryTitle">Title</h2>
             <button id="sortBtn">Sort</button>
         </div>
         <hr>
         <div class="tasksContainer">
-            <div id="addTask">
-                <img class= "symbol" src="./images/add-4.png" alt="add">
-                <div> Add Task</div>
+            <div id="createTask">
+                <img class= "symbol" src="./images/add-4.png" alt="create">
+                <div> Create Task</div>
             </div>
         </div>
     </div>
 
-    <div id="myModal" class="modal">
+    <div id="modal" class="modal">
         <div class="modal-content">
           <span class="close">&times;</span>
-          <div class="modal-top">
-            <input type="text" id="modalTitle" placeholder="New Task">
-            <div id="myModal" class="modal">
-                <!-- ... -->
-                <select id="modalCategorySelect">
-                    <option value="Inbox"></option>
+          <form action="">
+            <div class="modal-top"> 
+                <input type="text" id="title" value="Task Name" placeholder="Task Name" required> <!-- Title -->
+                <label for="category">Category</label>
+                <select id="category"> <!-- Category -->
+                    <option value="Inbox" selected>Inbox</option>
+                    <option value="Chores">Chores</option>
+                    <option value="Work">Work</option>
+                    <option value="Programming">Programming</option>
+
                 </select>
-                <!-- ... -->
+                </div>
+            <div class="modal-mid">
+                <label for="dueDate">Due Date:</label> <input type="date" id="dueDate"> <!-- Due Date -->
+                <label for="priority">Priority: </label> 
+                <select id="priority"> <!-- Importance -->
+                    <option value="Highest">Highest</option>
+                    <option value="High">High</option>
+                    <option value="Medium">Medium</option>
+                    <option value="Low" selected>Low</option>
+                </select>
             </div>
-            
-            <p id="modalCategory"></p>
-          </div>
-          <div class="modal-mid">
-            <p id="modalDueDate"></p>
-            <select id="modalImportanceSelect" label="Priority">
-                <option  value="./images/warning_red.png">Highest</option>
-                <option value="./images/warning_orange.png">Highe</option>
-                <option value="./images/warning_yellow.png">Medium</option>
-                <option value="./images/warning_grey.png" selected>Low</option>
-            </select>
-          </div>
-          <div class="modal-bottom">
-            <textarea id="modalDescription" rows="6" placeholder="Description"></textarea>
-            <button id="cancelBtn">Cancel</button>
-            <button id="okBtn">Ok</button>
-
-
-          </div>
-
+            <div class="modal-bottom">
+                <textarea id="description" rows="6" placeholder="Description"></textarea>
+                <button id="cancelTaskBtn">Cancel</button>
+                <button type="submit" id="okTaskBtn">Ok</button>
+            </div>
+          </form>
         </div>
-      </div>
+    </div>
 
     <footer> Marco Santinini - The Odin Project 2023</footer>
     <script src="script.js"></script>
