@@ -7,6 +7,7 @@ const collapseBtn = document.getElementById('collapseBtn');
 const createTaskBtn = document.getElementById('createTask');
 const okTaskBtn = document.getElementById('okTaskBtn')
 const cancelTaskBtn = document.getElementById('cancelTaskBtn');
+let deleteButton = document.getElementById('delete');
 let titleInput= document.getElementById("title")
 let categorySelect = document.getElementById("category");
 let dueDateSelect = document.getElementById("dueDate");
@@ -54,7 +55,7 @@ class Category {
     let defaultCategories = ["Inbox", "Chores", "Work", "Programming"];
     let categories = defaultCategories.map(categoryName => new Category(categoryName));
 
-// Create a new task
+// Brings up new task modal
 createTaskBtn.addEventListener('click', function() {
     // Reset the modal input fields
     titleInput.value = "";
@@ -72,7 +73,7 @@ createTaskBtn.addEventListener('click', function() {
     modal.style.display = "block";
 });
 
-// Confirms and Adds the created task
+// Creates task after submitting modal form
 okTaskBtn.addEventListener('click', function(event) {
   if (document.querySelector('form').reportValidity()) {
     event.preventDefault();
@@ -124,10 +125,14 @@ okTaskBtn.addEventListener('click', function(event) {
         delete titleInput.dataset.editingTaskId;
         modal.style.display = "none";
     } else {
-        // Create Task
+
+    // Create Task Object
     let newTask = new Task(taskCounter, title, categoryObject, dueDate, importance, description);
     categoryObject.addTask(newTask);
     
+    // Container div for the task and the line break
+    const taskContainerDiv = document.createElement('div');
+
     // Add Task Div
     const taskDiv = document.createElement('div');
     taskDiv.classList.add('taskDiv');
@@ -170,20 +175,32 @@ okTaskBtn.addEventListener('click', function(event) {
             else {taskPriorityImg.src = "./images/warning_grey.png"}
             taskPriorityImg.classList.add('symbol');
             taskPriority.appendChild(taskPriorityImg);
+            const taskDelete = document.createElement('img');
+            taskDelete.id = `taskDelete-${taskCounter}`;
+            taskDelete.src = "./images/delete.png"; // Change to your delete image's path
+            taskDelete.classList.add('symbol');
 
             taskSec.appendChild(taskDueDate);
             taskSec.appendChild(taskPriority);
+            taskSec.appendChild(taskDelete);
 
     const linebreak = document.createElement('hr');
 
-    tasksContainer.appendChild(taskDiv);
-    tasksContainer.appendChild(linebreak);
+    taskContainerDiv.appendChild(taskDiv);
+    taskContainerDiv.appendChild(linebreak);
+
+    tasksContainer.appendChild(taskContainerDiv);
 
     // Open / Edit Tasks
     taskDiv.addEventListener('click', function(event) {
-        event.stopPropagation();
+
+    // Check if delete button was clicked
+    if (event.target === taskDelete || event.target === checkbox) {
+        return; // If delete button was clicked, don't open modal
+    }
+
         console.log(`Task div clicked: ${this.id}`);
-        
+    
         // Find the task object that corresponds to this taskDiv
         let taskId = this.dataset.taskId;
         let taskObject;
@@ -192,11 +209,11 @@ okTaskBtn.addEventListener('click', function(event) {
             if(taskObject) {
                 break;
             }
+        }
         if (taskObject === undefined) {
             console.error(`No task found with id ${taskId}`);
             return;
         }    
-    }
     
         // Fill the modal with the task object's current data
         titleInput.value = taskObject.title;
@@ -207,10 +224,10 @@ okTaskBtn.addEventListener('click', function(event) {
     
         // Set the editingTaskId to taskId so that we know which task is being edited
         titleInput.dataset.editingTaskId = taskId;
-        
+    
         // Show the modal
         modal.style.display = "block";
-    });
+    }, true);
 
     checkbox.addEventListener('click', function(event) {
         event.stopPropagation();
@@ -242,6 +259,89 @@ okTaskBtn.addEventListener('click', function(event) {
         modal.style.display = "none";
     });
 
+
+//Delete Button (inside Modal)
+    deleteButton.addEventListener('click', function(event) {
+        event.stopPropagation();
+    
+        // Get taskId from the editingTaskId data attribute
+        let taskId = titleInput.dataset.editingTaskId;
+    
+        if (!taskId) {
+            console.log('No task is currently being edited');
+            return;
+        }
+    
+        deleteTask(taskId);
+    });
+
+ //Delete Button (Outside Modal)
+document.addEventListener('click', function(event) {
+    if (event.target.id.startsWith('taskDelete-')) {
+        event.stopPropagation();
+    
+        // Get taskId from the id of the clicked element
+        let taskId = event.target.id.replace('taskDelete-', '');
+    
+        deleteTask(taskId);
+    }
+});
+
+// Delete Task Function
+function deleteTask(taskId) {
+    if (!confirm('Are you sure you want to delete this task?')) {
+        // User cancelled the delete operation
+
+        // Find the task object that corresponds to this taskId
+        let taskObject;
+        for(let category of categories) {
+            taskObject = category.tasks.find(task => task.id == taskId);
+            if(taskObject) {
+                break;
+            }
+        }
+        if (taskObject === undefined) {
+            console.error(`No task found with id ${taskId}`);
+            return;
+        }
+
+        // Set the editingTaskId to taskId so that we know which task is being edited
+        titleInput.dataset.editingTaskId = taskId;
+
+        // Show the modal
+        modal.style.display = "block";
+
+        return;
+    }
+
+    // Find the task object that corresponds to this taskId
+    let taskObject;
+    let taskCategory;
+    for(let category of categories) {
+        taskObject = category.tasks.find(task => task.id == taskId);
+        if(taskObject) {
+            taskCategory = category;
+            break;
+        }
+    }
+    if (taskObject === undefined) {
+        console.error(`No task found with id ${taskId}`);
+        // Clear the editingTaskId data attribute
+        delete titleInput.dataset.editingTaskId;
+        return;
+    }
+
+    // Remove the task from the category's tasks array
+    taskCategory.removeTask(taskObject.title);
+
+    // Remove the task div from the DOM
+    let taskContainerDiv = document.querySelector(`#task-${taskId}`).parentNode;
+    taskContainerDiv.remove();
+
+    // Hide the modal
+    modal.style.display = "none";
+}
+        
 // Nav Collapse & Expand
 collapseBtn.addEventListener('click', function() {
     const navDisplayStyle = window.getComputedStyle(nav).display;
@@ -289,7 +389,8 @@ collapseBtn.addEventListener('click', function() {
 // Closing Modal
 span.onclick = function() {
     modal.style.display = "none";
-  }
+    delete titleInput.dataset.editingTaskId;
+}
   // Closes Modal when clicking outside of it     
 window.onclick = function(event) {
     if (event.target == modal) {
@@ -297,6 +398,7 @@ window.onclick = function(event) {
     }
   }
 
+// Enter = Click
 form.addEventListener('keydown', function(event) {
     if (event.key === "Enter") {
         event.preventDefault(); 

@@ -26,6 +26,9 @@ button:hover{
 .symbol, #priority{
     height: 20px;
 }
+#delete{
+    height: 30px;
+}
 /* ------------------------------------------------- */
 header{
     background-color: rgb(49, 57, 112);
@@ -245,6 +248,15 @@ footer{
         label[for='priority'] {
             margin-left: 15%;
           }
+
+    .modal-bottom{
+        margin-top: 12px;
+        margin-right: 8px;
+        margin-left: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
   
   textarea {
     width: 100%; 
