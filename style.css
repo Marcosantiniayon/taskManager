@@ -121,12 +121,17 @@ li{
     cursor: pointer;
 
 }
+.taskBigDiv{
+    display:flex;
+    gap: 12px;
+}
 
 .taskDiv{
     display: flex;
     justify-content: space-between;
     align-items: center;
     cursor: pointer;
+    width: 100%;
 
 }
 .taskPrim, .taskSec{
