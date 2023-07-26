@@ -97,12 +97,10 @@ function addTask(title, category, categoryObject, dueDate, importance, descripti
         taskBigDiv.classList.add('taskBigDiv');
         const taskDiv = document.createElement('div');
         taskDiv.classList.add('taskDiv');
-        taskDiv.id = `task-${taskId}`;
+        taskDiv.id = taskId;
         taskDiv.dataset.taskId = taskId;
 
         console.log('new task,' + 'title: ' + title + ',id: ' + taskId + ', ' + taskDiv.id);
-
-
 
         taskDiv.addEventListener('click', function() {
             // Set the form inputs to the task's values
@@ -171,9 +169,23 @@ function addTask(title, category, categoryObject, dueDate, importance, descripti
                 taskPriorityImg.classList.add('symbol');
                 taskPriority.appendChild(taskPriorityImg);
                 const deleteBtnBigDiv = document.createElement('img');
-                deleteBtnBigDiv.id = `taskDelete-${taskCounter}`;
+                deleteBtnBigDiv.id = taskId;
                 deleteBtnBigDiv.src = "./images/delete.png"; // Change to your delete image's path
                 deleteBtnBigDiv.classList.add('symbol');
+
+                deleteBtnBigDiv.addEventListener('click', function(event) {
+                    event.stopPropagation();
+            
+                    // Get taskId from the editingTaskId data attribute
+                    let taskId = deleteBtnBigDiv.id;
+            
+                    if (!taskId) {
+                        console.log('No task is currently being edited');
+                        return;
+                    }
+            
+                    deleteTask(taskId);
+                });
 
                 taskSec.appendChild(taskDueDate);
                 taskSec.appendChild(taskPriority);
@@ -212,7 +224,7 @@ function editTask(title, categoryObject, dueDate, importance, description){
 
     // Log the taskId and taskDiv here
     console.log('editing task, title: ' + title + ' id: ' + taskId);
-    let taskDiv = document.getElementById('task-'+taskId);
+    let taskDiv = document.getElementById(taskId);
 
     // Update the taskDiv's textContent to reflect the new values
     taskDiv.querySelector('.taskTitle').textContent = title;
@@ -242,11 +254,12 @@ function editTask(title, categoryObject, dueDate, importance, description){
             let description = document.getElementById("description").value;
         
             // Check if we're creating a new task or updating an existing one
-            if (titleInput.dataset.editingTaskId !== undefined) {
+            if (titleInput.dataset.editingTaskId) {
                 editTask(title, categoryObject, dueDate, importance, description);
             } else {
                 addTask(title, category, categoryObject, dueDate, importance, description);
-            }   
+            }
+            
         
             modal.style.display = "none";
         
@@ -273,57 +286,58 @@ function editTask(title, categoryObject, dueDate, importance, description){
 
         deleteTask(taskId);
     });
-
-    //Delete Button (Outside Modal)
-    // Code here
+    //Delete Button (Outside Modal) event listener is located inside addTaskDiv eventlistener 'DeleteBtnBigDiv'
 
     function deleteTask(taskId) {
-    if (!confirm('Are you sure you want to delete this task?')) {
-        // If the user cancels, just close the modal
-        modal.style.display = "none";
-        delete titleInput.dataset.editingTaskId;
-        return;
-    }
-
-    let taskDiv = document.getElementById('task-'+taskId);
-    if (!taskDiv) {
-        console.error(`No task div found with id ${taskId}`);
-        delete titleInput.dataset.editingTaskId;
-        return;
-    }
-
-    // Find the task object that corresponds to this taskId
-    let taskObject;
-    let taskCategory;
-    for (let category of categories) {
-        taskObject = category.tasks.find((task) => task.id == taskId);
-        if (taskObject) {
-            taskCategory = category;
-            break;
+        if (!confirm('Are you sure you want to delete this task?')) {
+            // If the user cancels, just close the modal
+            modal.style.display = "none";
+            delete titleInput.dataset.editingTaskId;
+            return;
         }
-    }
+
+        let taskDiv = document.getElementById(taskId);
+        if (!taskDiv) {
+            console.error(`No task div found with id ${taskId}`);
+            delete titleInput.dataset.editingTaskId;
+            return;
+        }
+
+        // Find the task object that corresponds to this taskId
+        let taskObject;
+        let taskCategory;
+        for (let category of categories) {
+            taskObject = category.tasks.find((task) => task.id == taskId);
+            if (taskObject) {
+                taskCategory = category;
+                break;
+            }
+        }
 
 
-    // Remove the task from the category's tasks array
-    taskCategory.removeTaskFromCat(taskObject.title);
+        // Remove the task from the category's tasks array
+        taskCategory.removeTaskFromCat(taskId);
 
-    // Update the taskCounter
-    taskCounter--;
+        // Update the taskCounter
+        taskCounter--;
 
-    // Update the taskCounter
-    taskCounter = categories.reduce((count, category) => count + category.tasks.length, 0);
+        // Update the taskCounter
+        taskCounter = categories.reduce((count, category) => count + category.tasks.length, 0);
 
-    // Get the parent node (taskContainerDiv) of the taskDiv
-    let taskContainerDiv = taskDiv.parentNode;
+        // Get the parent node (taskContainerDiv) of the taskDiv
+        let taskContainerDiv = taskDiv.parentNode;
 
-    // Remove both the taskContainerDiv and the <hr> element (sibling of taskContainerDiv)
-    if (taskContainerDiv && taskContainerDiv.nextElementSibling && taskContainerDiv.nextElementSibling.tagName === 'HR') {
-        taskContainerDiv.nextElementSibling.remove(); // Remove <hr> element
-    }
-    taskContainerDiv.remove(); // Remove taskContainerDiv
+        // Remove both the taskContainerDiv and the <hr> element (sibling of taskContainerDiv)
+        if (taskContainerDiv && taskContainerDiv.nextElementSibling && taskContainerDiv.nextElementSibling.tagName === 'HR') {
+            taskContainerDiv.nextElementSibling.remove(); // Remove <hr> element
+        }
+        taskContainerDiv.remove(); // Remove taskContainerDiv
 
-    // Hide the modal
-    modal.style.display = "none";
+        // Hide the modal
+        modal.style.display = "none";
+
+        // Clear the editingTaskId since we've just deleted the task
+        delete titleInput.dataset.editingTaskId;
     }
 
 // Remove the error class when the title input value changes
