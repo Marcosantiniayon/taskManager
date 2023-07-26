@@ -40,23 +40,28 @@ class Category {
         this.tasks = [];
     }
 
-    addTask(task) {
+    addTaskToCat(task) {
         this.tasks.push(task);
         // Set the task's ID to match the correct counter value
         task.id = taskCounter;
         taskCounter++;
     }
 
-    removeTask(taskId) {
+    removeTaskFromCat(taskId) {
         this.tasks = this.tasks.filter(task => task.id !== taskId);
     }
 }
-    // Initialize default categories
-    let defaultCategories = ["Inbox", "Chores", "Work", "Programming"];
-    let categories = defaultCategories.map(categoryName => new Category(categoryName));
-    let taskCounter = categories.reduce((count, category) => count + category.tasks.length, 0);
+    // Function to initialize default categories
+    function initializeCategories() {
+        // Initialize default categories
+        let defaultCategories = ["Inbox", "Chores", "Work", "Programming"];
+        let categories = defaultCategories.map(categoryName => new Category(categoryName));
+        let taskCounter = categories.reduce((count, category) => count + category.tasks.length, 0);
 
-// Brings up new task modal
+        return { categories, taskCounter };
+    } let { categories, taskCounter } = initializeCategories();
+
+// Adding New Task - Brings up new task modal
 createTaskBtn.addEventListener('click', function() {
     // Set default inputs
     titleInput.value = "";
@@ -74,89 +79,46 @@ createTaskBtn.addEventListener('click', function() {
     modal.style.display = "block";
 });
     
-// Creates / edits task with input values
-okTaskBtn.addEventListener('click', function(event) {
-  if (document.querySelector('form').reportValidity()) {
-    event.preventDefault();
-    titleInput.classList.remove('error');
+// Creates / Edits task with input values
+function addTask(title, category, categoryObject, dueDate, importance, description){
+    // Create Task Object 
+    let newTask = new Task(taskCounter, title, categoryObject, dueDate, importance, description);
+    categoryObject.addTaskToCat(newTask);
+
+    let taskId = newTask.id
     
-    // Assign property values based off inputs
-    let title = document.getElementById("title").value;
-    let category = document.getElementById("category").value;
-    let categoryValue = document.getElementById("category").value;
-    let categoryObject = categories.find(category => category.name === categoryValue);
-    let dueDate = document.getElementById("dueDate").value;
-    let importance = document.getElementById("priority").value;
-    let description = document.getElementById("description").value;
+    // Container div for the task and the line break
+    const taskContainerDiv = document.createElement('div');
+    taskContainerDiv.classList.add('taskContainerDiv');
 
-    // Check if we're creating a new task or updating an existing one
-    if (titleInput.dataset.editingTaskId !== undefined) {
-        let taskId = titleInput.dataset.editingTaskId;
-        editTask(title, categoryObject, dueDate, importance, description);
-    } else {
-        createTask(title, category, categoryObject, dueDate, importance, description);
-    }   
-
-    modal.style.display = "none";
-
-    } else { titleInput.classList.add('error'); }
-});
-    function editTask(title, categoryObject, dueDate, importance, description){
-        // Editing Task Object
-        let taskId = titleInput.dataset.editingTaskId;
-        let taskObject;
-        for(let category of categories) {
-            taskObject = category.tasks.find(task => task.id == taskId);
-            if(taskObject) {
-                break;
-            }
-        }
-        if (taskObject === undefined) {
-            console.error(`No task found with id ${taskId}`);
-            return;
-        }
-
-        // Update the task object's values
-        taskObject.title = title;
-        taskObject.category = categoryObject;
-        taskObject.dueDate = dueDate;
-        taskObject.priority = importance;
-        taskObject.description = description;
-
-        // Update the taskDiv's textContent to reflect the new values
-        let taskDiv = document.querySelector(`#task-${taskId}`);
-        taskDiv.querySelector('.taskTitle').textContent = title;
-        taskDiv.querySelector('.taskCategory').textContent = `(${categoryValue})`;
-        taskDiv.querySelector('.taskDueDate').textContent = dueDate;
-        let taskPriorityImg = taskDiv.querySelector('.symbol');
-            if(importance == "Highest"){taskPriorityImg.src = "./images/warning-333.png"}
-            else if(importance == "High"){taskPriorityImg.src = "./images/warning-222.png"}
-            else if(importance == "Medium"){taskPriorityImg.src = "./images/warning-111.png"}
-            else {taskPriorityImg.src = "./images/warning_grey.png"}
-
-        delete titleInput.dataset.editingTaskId;
-        modal.style.display = "none";
-    }
-    function createTask(title, category, categoryObject, dueDate, importance, description){
-        // Create Task Object 
-        let newTask = new Task(taskCounter - 1, title, categoryObject, dueDate, importance, description);
-        categoryObject.addTask(newTask);
-
-        // Increment the taskCounter after adding a new task
-        taskCounter++;
-        let taskId = taskCounter - 1;
-        
-        // Container div for the task and the line break
-        const taskContainerDiv = document.createElement('div');
-        taskContainerDiv.classList.add('taskContainerDiv');
-
-        // Add Task Div
+    // Add Task Div
+    function addTaskDiv(taskId, title, category, dueDate, taskCounter, prioritySelect){
         const taskBigDiv = document.createElement('div');
         taskBigDiv.classList.add('taskBigDiv');
         const taskDiv = document.createElement('div');
         taskDiv.classList.add('taskDiv');
-        taskDiv.id = `task-${taskCounter - 1}`
-        taskDiv.dataset.taskId = taskCounter;
+        taskDiv.id = `task-${taskId}`;
+        taskDiv.dataset.taskId = taskId;
+
+        console.log('new task,' + 'title: ' + title + ',id: ' + taskId + ', ' + taskDiv.id);
+
+
+
+        taskDiv.addEventListener('click', function() {
+            // Set the form inputs to the task's values
+            titleInput.value = newTask.title;
+            categorySelect.value = newTask.category.name;
+            dueDateSelect.value = newTask.dueDate;
+            prioritySelect.value = newTask.priority;
+            descriptionInput.value = newTask.description;
+        
+            // Set the data attribute on the title input to the task's id
+            // so we know which task is being edited
+            titleInput.dataset.editingTaskId = newTask.id;
+        
+            // Show the modal
+            modal.style.display = "block";
+        });
 
             const taskPrim = document.createElement('div');
             taskPrim.classList.add('taskPrim');
@@ -222,30 +184,99 @@ okTaskBtn.addEventListener('click', function(event) {
 
         taskContainerDiv.appendChild(taskBigDiv);
         taskContainerDiv.appendChild(linebreak);
-        tasksContainer.appendChild(taskContainerDiv);
-    }
-// Cancels new inputs
-cancelTaskBtn.addEventListener('click', function(event) {
-    event.preventDefault(); // Prevent the form from submitting
-    modal.style.display = "none";
-});
-
-//Delete Button (Outside Modal)
-// Code here
-//Delete Button (inside Modal)
-deleteBtnModal.addEventListener('click', function(event) {
-    event.stopPropagation();
-
-    // Get taskId from the editingTaskId data attribute
+        tasksContainer.appendChild(taskContainerDiv);    
+    } addTaskDiv(taskId, title, category, dueDate, taskCounter, prioritySelect);
+    
+}
+function editTask(title, categoryObject, dueDate, importance, description){
+    // Editing Task Object
     let taskId = titleInput.dataset.editingTaskId;
-
-    if (!taskId) {
-        console.log('No task is currently being edited');
+    let taskObject;
+    for(let category of categories) {
+        taskObject = category.tasks.find(task => task.id == taskId);
+        if(taskObject) {
+            break;
+        }
+    }
+    if (taskObject === undefined) {
+        console.error(`No task found with id ${taskId}`);
         return;
     }
 
-    deleteTask(taskId);
-});
+    // Update the task object's values
+    taskObject.title = title;
+    taskObject.category = categoryObject;
+    taskObject.dueDate = dueDate;
+    taskObject.priority = importance;
+    taskObject.description = description;
+
+    // Log the taskId and taskDiv here
+    console.log('editing task, title: ' + title + ' id: ' + taskId);
+    let taskDiv = document.getElementById('task-'+taskId);
+
+    // Update the taskDiv's textContent to reflect the new values
+    taskDiv.querySelector('.taskTitle').textContent = title;
+    taskDiv.querySelector('.taskCategory').textContent = `(${categoryObject.name})`;
+    taskDiv.querySelector('.taskDueDate').textContent = dueDate;
+    let taskPriorityImg = taskDiv.querySelector('.symbol');
+        if(importance == "Highest"){taskPriorityImg.src = "./images/warning-333.png"}
+        else if(importance == "High"){taskPriorityImg.src = "./images/warning-222.png"}
+        else if(importance == "Medium"){taskPriorityImg.src = "./images/warning-111.png"}
+        else {taskPriorityImg.src = "./images/warning_grey.png"}
+
+    delete titleInput.dataset.editingTaskId;
+    modal.style.display = "none";
+}
+    okTaskBtn.addEventListener('click', function(event) {
+        if (document.querySelector('form').reportValidity()) {
+            event.preventDefault();
+            titleInput.classList.remove('error');
+            
+            // Assign property values based off inputs
+            let title = document.getElementById("title").value;
+            let category = document.getElementById("category").value;
+            let categoryValue = document.getElementById("category").value;
+            let categoryObject = categories.find(category => category.name === categoryValue);
+            let dueDate = document.getElementById("dueDate").value;
+            let importance = document.getElementById("priority").value;
+            let description = document.getElementById("description").value;
+        
+            // Check if we're creating a new task or updating an existing one
+            if (titleInput.dataset.editingTaskId !== undefined) {
+                editTask(title, categoryObject, dueDate, importance, description);
+            } else {
+                addTask(title, category, categoryObject, dueDate, importance, description);
+            }   
+        
+            modal.style.display = "none";
+        
+            } else { titleInput.classList.add('error'); }
+        });
+    // Cancels new inputs
+    cancelTaskBtn.addEventListener('click', function(event) {
+        event.preventDefault(); // Prevent the form from submitting
+        modal.style.display = "none";
+    });
+
+//Delete Tasks
+    //Delete Button (inside Modal)
+    deleteBtnModal.addEventListener('click', function(event) {
+        event.stopPropagation();
+
+        // Get taskId from the editingTaskId data attribute
+        let taskId = titleInput.dataset.editingTaskId;
+
+        if (!taskId) {
+            console.log('No task is currently being edited');
+            return;
+        }
+
+        deleteTask(taskId);
+    });
+
+    //Delete Button (Outside Modal)
+    // Code here
+
     function deleteTask(taskId) {
     if (!confirm('Are you sure you want to delete this task?')) {
         // If the user cancels, just close the modal
@@ -254,7 +285,7 @@ deleteBtnModal.addEventListener('click', function(event) {
         return;
     }
 
-    let taskDiv = document.querySelector(`#task-${taskId}`);
+    let taskDiv = document.getElementById('task-'+taskId);
     if (!taskDiv) {
         console.error(`No task div found with id ${taskId}`);
         delete titleInput.dataset.editingTaskId;
@@ -274,7 +305,7 @@ deleteBtnModal.addEventListener('click', function(event) {
 
 
     // Remove the task from the category's tasks array
-    taskCategory.removeTask(taskObject.title);
+    taskCategory.removeTaskFromCat(taskObject.title);
 
     // Update the taskCounter
     taskCounter--;
