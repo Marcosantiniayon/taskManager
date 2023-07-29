@@ -81,12 +81,20 @@ nav{
 
 ul{
     list-style-type: none;    
+    margin: 0;
+    padding: 10px;
 }
 
 li{
     margin-bottom: 16px;
     font-weight: 500;
 }
+
+.timelineBtns{
+    margin: 8px;
+    background-color: white;
+}
+
 /* ------------------------------------------------- */
 .content{
     background-color: white;

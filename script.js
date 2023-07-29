@@ -4,6 +4,10 @@ const modal = document.querySelector('.modal');
 const tasksContainer = document.querySelector('.tasksContainer');
 let form = document.querySelector('form');
 const collapseBtn = document.getElementById('collapseBtn');
+const allBtn = document.getElementById('allBtn');
+const todayBtn = document.getElementById('todayBtn');
+const thisWeekBtn = document.getElementById('thisWeekBtn');
+const thisMonthBtn = document.getElementById('thisMonthBtn');
 const createTaskBtn = document.getElementById('createTask');
 const okTaskBtn = document.getElementById('okTaskBtn')
 const cancelTaskBtn = document.getElementById('cancelTaskBtn');
@@ -33,51 +37,27 @@ class Task {
     }
 }
 
-// Category Constructor
-class Category {
-    constructor(name) {
-        this.name = name;
-        this.tasks = [];
-    }
-
-    addTaskToCat(task) {
-        this.tasks.push(task);
-        // Set the task's ID to match the correct counter value
-        task.id = taskCounter;
-        taskCounter++;
-    }
-
-    removeTaskFromCat(taskId) {
-        this.tasks = this.tasks.filter(task => task.id !== taskId);
-    }
-}
-    // Function to initialize default categories
-    function initializeCategories() {
-        // Initialize default categories
-        let defaultCategories = ["Inbox", "Chores", "Work", "Programming"];
-        let categories = defaultCategories.map(categoryName => new Category(categoryName));
-        let taskCounter = categories.reduce((count, category) => count + category.tasks.length, 0);
-
-        return { categories, taskCounter };
-    } let { categories, taskCounter } = initializeCategories();
-
 // Adding New Task - Brings up new task modal
 createTaskBtn.addEventListener('click', function() {
     // Set default inputs
     titleInput.value = "";
     categorySelect.value = "Inbox";
-        let today = new Date();
-            let dd = String(today.getDate()).padStart(2, '0');
-            let mm = String(today.getMonth() + 1).padStart(2, '0');
-            let yyyy = today.getFullYear();
-        today = yyyy + '-' + mm + '-' + dd;
-    dueDateSelect.value = today;
+    let today = new Date();
+    let dd = String(today.getDate()).padStart(2, '0');
+    let mm = String(today.getMonth() + 1).padStart(2, '0');
+    let yyyy = today.getFullYear();
+    
+    // Format the date as "mm-dd-yyyy"
+    today = yyyy + '-' + mm + '-' + dd;
+    dueDateSelect.value = today
+    
     prioritySelect.value = "Low";
     descriptionInput.value = "";
 
     // Show the modal
     modal.style.display = "block";
 });
+
     
 // Creates / Edits task with input values
 function addTask(title, category, categoryObject, dueDate, importance, description){
@@ -110,8 +90,7 @@ function addTask(title, category, categoryObject, dueDate, importance, descripti
             prioritySelect.value = newTask.priority;
             descriptionInput.value = newTask.description;
         
-            // Set the data attribute on the title input to the task's id
-            // so we know which task is being edited
+            // Set the data attribute on the title input to the task's id so we know which task is being edited
             titleInput.dataset.editingTaskId = newTask.id;
         
             // Show the modal
@@ -157,7 +136,7 @@ function addTask(title, category, categoryObject, dueDate, importance, descripti
 
                 const taskDueDate = document.createElement('div');
                 taskDueDate.classList.add('taskDueDate');
-                taskDueDate.textContent = dueDate;
+                taskDueDate.textContent = formatDateForInput(dueDate);
 
                 const taskPriority = document.createElement('div');
                 taskPriority.classList.add('taskDueDate');
@@ -218,6 +197,8 @@ function editTask(title, categoryObject, dueDate, importance, description){
     // Update the task object's values
     taskObject.title = title;
     taskObject.category = categoryObject;
+    let formattedToday = yyyy + '-' + mm + '-' + dd;
+        dueDateSelect.value = formattedToday;
     taskObject.dueDate = dueDate;
     taskObject.priority = importance;
     taskObject.description = description;
@@ -344,7 +325,116 @@ function editTask(title, categoryObject, dueDate, importance, description){
 titleInput.addEventListener('input', function() {
     this.classList.remove('error');
 });
-        
+
+
+// ---------------------------------------
+// Category Constructor
+class Category {
+    constructor(name) {
+        this.name = name;
+        this.tasks = [];
+    }
+
+    addTaskToCat(task) {
+        this.tasks.push(task);
+        // Set the task's ID to match the correct counter value
+        task.id = taskCounter;
+        taskCounter++;
+    }
+
+    removeTaskFromCat(taskId) {
+        this.tasks = this.tasks.filter(task => task.id !== taskId);
+    }
+}
+    // Function to initialize default categories
+    function initializeCategories() {
+        // Initialize default categories
+        let defaultCategories = ["Inbox", "Chores", "Work", "Programming"];
+        let categories = defaultCategories.map(categoryName => new Category(categoryName));
+        let taskCounter = categories.reduce((count, category) => count + category.tasks.length, 0);
+
+        return { categories, taskCounter };
+    } let { categories, taskCounter } = initializeCategories();
+
+// Event listeners for the buttons
+allBtn.addEventListener('click', function () {
+    // Implement your logic here for displaying all tasks
+    // For example, you can show all tasks or remove any filtering criteria
+    // For now, let's assume you want to show all tasks in the tasksContainer
+    displayAllTasks();
+  });
+  
+// Event listener for todayBtn
+todayBtn.addEventListener('click', function () {
+    // Get the current date
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Set hours, minutes, seconds, and milliseconds to 0 to compare only the dates
+  
+    // Loop through all taskContainerDiv elements and check their tasks' due dates
+    const allTaskContainerDivs = document.querySelectorAll('.taskContainerDiv');
+    allTaskContainerDivs.forEach((taskContainerDiv) => {
+      const taskDiv = taskContainerDiv.querySelector('.taskDiv'); // Get the taskDiv inside the current taskContainerDiv
+      const taskId = taskDiv.dataset.taskId;
+      const task = getTaskById(taskId); // Retrieve the task object by ID
+  
+      // Check if the task's due date is before or equal to today's date
+      const taskDueDate = new Date(formatDateForInput(task.dueDate));
+      taskDueDate.setHours(0, 0, 0, 0);
+  
+      if (taskDueDate <= today) {
+        // Show the taskContainerDiv if its due date is before or equal to today
+        taskContainerDiv.style.display = 'block';
+        console.log("task: " + taskId + ", due date: " + taskDueDate);
+      } else {
+        // Hide the taskContainerDiv if its due date is after today
+        taskContainerDiv.style.display = 'none';
+        console.log("task: " + taskId + ", due date: " + taskDueDate);
+
+      }
+    });
+  });
+  
+  
+
+thisWeekBtn.addEventListener('click', function () {
+displayTasksDueThisWeek();
+});
+
+thisMonthBtn.addEventListener('click', function () {
+displayTasksDueThisMonth();
+});
+
+// Functions to implement the task filtering logic
+function displayAllTasks() {
+}
+
+function displayTasksDueToday() {
+
+}
+
+function displayTasksDueThisWeek() {
+}
+
+function displayTasksDueThisMonth() {
+}    
+    
+function getTaskById(taskId) {
+    // Loop through each category
+    for (const category of categories) {
+      // Find the task in the category's tasks array with the matching ID
+      const task = category.tasks.find((task) => task.id == taskId);
+      if (task) {
+        return task; // Return the task if found
+      }
+    }
+  
+    return null; // Return null if no task with the given ID is found
+  }
+
+// ---------------------------------------
+
+
+
 // Nav Collapse & Expand
 collapseBtn.addEventListener('click', function() {
     const navDisplayStyle = window.getComputedStyle(nav).display;
@@ -408,3 +498,15 @@ form.addEventListener('keydown', function(event) {
         okTaskBtn.click(); 
     }
 });
+
+function formatDateForInput(dateString) {
+    const date = new Date(dateString);
+    const offset = date.getTimezoneOffset(); // Get the timezone offset in minutes
+    date.setMinutes(date.getMinutes() + offset); // Adjust the date by the timezone offset
+    const mm = String(date.getMonth() + 1).padStart(2, '0');
+    const dd = String(date.getDate()).padStart(2, '0');
+    const yyyy = date.getFullYear();
+    return `${mm}/${dd}/${yyyy}`;
+  }
+  
+  
