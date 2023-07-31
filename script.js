@@ -364,109 +364,57 @@ function initializeCategories() {
 } let { categories, taskCounter } = initializeCategories();
 
 function timelinesFilter(){
-    // Event listeners for the buttons
-    allBtn.addEventListener('click', function () {
-        const allTaskContainerDivs = document.querySelectorAll('.taskContainerDiv');
-        allTaskContainerDivs.forEach((taskContainerDiv) => {
-            taskContainerDiv.style.display = 'block';
-        });
-    });
-    // Event listener for todayBtn
-    todayBtn.addEventListener('click', function () {
-        // Get the current date
+
+    function getCurrentDate(){
         const today = new Date();
         today.setHours(0, 0, 0, 0); // Set hours, minutes, seconds, and milliseconds to 0 to compare only the dates
-    
-        // Loop through all taskContainerDiv elements and check their tasks' due dates
-        const allTaskContainerDivs = document.querySelectorAll('.taskContainerDiv');
-        allTaskContainerDivs.forEach((taskContainerDiv) => {
-        const taskDiv = taskContainerDiv.querySelector('.taskDiv'); // Get the taskDiv inside the current taskContainerDiv
-        const taskId = taskDiv.dataset.taskId;
-        const task = getTaskById(taskId); // Retrieve the task object by ID
-    
-        // Check if the task's due date is before or equal to today's date
-        const taskDueDate = new Date(formatDateForInput(task.dueDate));
-        taskDueDate.setHours(0, 0, 0, 0);
-    
-        if (taskDueDate <= today) {
-            // Show the taskContainerDiv if its due date is before or equal to today
-            taskContainerDiv.style.display = 'block';
-            console.log("task: " + taskId + ", due date: " + taskDueDate);
-        } else {
-            // Hide the taskContainerDiv if its due date is after today
-            taskContainerDiv.style.display = 'none';
-            console.log("task: " + taskId + ", due date: " + taskDueDate);
-        }
-        });
-    });
-    // Event listener for thisWeekBtn
-    thisWeekBtn.addEventListener('click', function () {
-        // Get the current date and the date seven days from now
-        const today = new Date();
-        today.setHours(0, 0, 0, 0); // Set hours, minutes, seconds, and milliseconds to 0 to compare only the dates
-    
-        const oneWeekFromNow = new Date();
-        oneWeekFromNow.setDate(today.getDate() + 7); // Get the date seven days from now
-        oneWeekFromNow.setHours(0, 0, 0, 0);
-    
-        // Loop through all taskContainerDiv elements and check their tasks' due dates
-        const allTaskContainerDivs = document.querySelectorAll('.taskContainerDiv');
-        allTaskContainerDivs.forEach((taskContainerDiv) => {
-        const taskDiv = taskContainerDiv.querySelector('.taskDiv'); // Get the taskDiv inside the current taskContainerDiv
-        const taskId = taskDiv.dataset.taskId;
-        const task = getTaskById(taskId); // Retrieve the task object by ID
-    
-        // Check if the task's due date is before or equal to one week from now
-        const taskDueDate = new Date(formatDateForInput(task.dueDate));
-        taskDueDate.setHours(0, 0, 0, 0);
-    
-        if (taskDueDate <= oneWeekFromNow) {
-            // Show the taskContainerDiv if its due date is within the next week
-            taskContainerDiv.style.display = 'block';
-            console.log("task: " + taskId + ", due date: " + taskDueDate);
-        } else {
-            // Hide the taskContainerDiv if its due date is after one week from now
-            taskContainerDiv.style.display = 'none';
-            console.log("task: " + taskId + ", due date: " + taskDueDate);
-        }
-        });
-    });
-    thisMonthBtn.addEventListener('click', function () {
-        // Get the current date and the date seven days from now
-        const today = new Date();
-        today.setHours(0, 0, 0, 0); // Set hours, minutes, seconds, and milliseconds to 0 to compare only the dates
-        
-        const oneMonthFromNow = new Date();
-        oneMonthFromNow.setDate(today.getDate() + 30); // Get the date seven days from now
-        oneMonthFromNow.setHours(0, 0, 0, 0);
-        
+        return today;
+    }
+    function filterTasksByDate(endDate){
         // Loop through all taskContainerDiv elements and check their tasks' due dates
         const allTaskContainerDivs = document.querySelectorAll('.taskContainerDiv');
         allTaskContainerDivs.forEach((taskContainerDiv) => {
             const taskDiv = taskContainerDiv.querySelector('.taskDiv'); // Get the taskDiv inside the current taskContainerDiv
             const taskId = taskDiv.dataset.taskId;
             const task = getTaskById(taskId); // Retrieve the task object by ID
-        
-            // Check if the task's due date is before or equal to one week from now
+
+            // Check if the task's due date is between startDate and endDate
             const taskDueDate = new Date(formatDateForInput(task.dueDate));
             taskDueDate.setHours(0, 0, 0, 0);
-        
-            if (taskDueDate <= oneMonthFromNow) {
-            // Show the taskContainerDiv if its due date is within the next week
-            taskContainerDiv.style.display = 'block';
-            console.log("task: " + taskId + ", due date: " + taskDueDate);
+
+            if (taskDueDate <= endDate) {
+                // Show the taskContainerDiv if its due date is between startDate and endDate
+                taskContainerDiv.style.display = 'block';
             } else {
-            // Hide the taskContainerDiv if its due date is after one week from now
-            taskContainerDiv.style.display = 'none';
-            console.log("task: " + taskId + ", due date: " + taskDueDate);
+                // Hide the taskContainerDiv if its due date is outside the range
+                taskContainerDiv.style.display = 'none';
             }
+        });
+    }    
+    todayBtn.addEventListener('click', function () {
+        const today = getCurrentDate();
+        filterTasksByDate(today);
+    });
+    thisWeekBtn.addEventListener('click', function () {
+        const today = getCurrentDate();
+        const oneWeekLater = new Date();
+        oneWeekLater.setDate(today.getDate() + 7);
+        filterTasksByDate(oneWeekLater);
+    });
+    thisMonthBtn.addEventListener('click', function () {
+        const today = getCurrentDate();
+        const oneMonthLater = new Date();
+        oneMonthLater.setDate(today.getDate() + 30);
+        filterTasksByDate(oneMonthLater);
+    });
+    allBtn.addEventListener('click', function () {
+        const allTaskContainerDivs = document.querySelectorAll('.taskContainerDiv');
+        allTaskContainerDivs.forEach((taskContainerDiv) => {
+            taskContainerDiv.style.display = 'block';
         });
     });
 }  timelinesFilter();
 
-
-
-    
 function getTaskById(taskId) {
     // Loop through each category
     for (const category of categories) {
