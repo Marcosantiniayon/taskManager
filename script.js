@@ -57,8 +57,6 @@ createTaskBtn.addEventListener('click', function() {
     // Show the modal
     modal.style.display = "block";
 });
-
-    
 // Creates / Edits task with input values
 function addTask(title, category, categoryObject, dueDate, importance, description){
     // Create Task Object 
@@ -197,8 +195,6 @@ function editTask(title, categoryObject, dueDate, importance, description){
     // Update the task object's values
     taskObject.title = title;
     taskObject.category = categoryObject;
-    let formattedToday = yyyy + '-' + mm + '-' + dd;
-        dueDateSelect.value = formattedToday;
     taskObject.dueDate = dueDate;
     taskObject.priority = importance;
     taskObject.description = description;
@@ -210,7 +206,7 @@ function editTask(title, categoryObject, dueDate, importance, description){
     // Update the taskDiv's textContent to reflect the new values
     taskDiv.querySelector('.taskTitle').textContent = title;
     taskDiv.querySelector('.taskCategory').textContent = `(${categoryObject.name})`;
-    taskDiv.querySelector('.taskDueDate').textContent = dueDate;
+    taskDiv.querySelector('.taskDueDate').textContent = formatDateForInput(dueDate);
     let taskPriorityImg = taskDiv.querySelector('.symbol');
         if(importance == "Highest"){taskPriorityImg.src = "./images/warning-333.png"}
         else if(importance == "High"){taskPriorityImg.src = "./images/warning-222.png"}
@@ -220,38 +216,37 @@ function editTask(title, categoryObject, dueDate, importance, description){
     delete titleInput.dataset.editingTaskId;
     modal.style.display = "none";
 }
-    okTaskBtn.addEventListener('click', function(event) {
-        if (document.querySelector('form').reportValidity()) {
-            event.preventDefault();
-            titleInput.classList.remove('error');
-            
-            // Assign property values based off inputs
-            let title = document.getElementById("title").value;
-            let category = document.getElementById("category").value;
-            let categoryValue = document.getElementById("category").value;
-            let categoryObject = categories.find(category => category.name === categoryValue);
-            let dueDate = document.getElementById("dueDate").value;
-            let importance = document.getElementById("priority").value;
-            let description = document.getElementById("description").value;
+okTaskBtn.addEventListener('click', function(event) {
+    if (document.querySelector('form').reportValidity()) {
+        event.preventDefault();
+        titleInput.classList.remove('error');
         
-            // Check if we're creating a new task or updating an existing one
-            if (titleInput.dataset.editingTaskId) {
-                editTask(title, categoryObject, dueDate, importance, description);
-            } else {
-                addTask(title, category, categoryObject, dueDate, importance, description);
-            }
-            
+        // Assign property values based off inputs
+        let title = document.getElementById("title").value;
+        let category = document.getElementById("category").value;
+        let categoryValue = document.getElementById("category").value;
+        let categoryObject = categories.find(category => category.name === categoryValue);
+        let dueDate = document.getElementById("dueDate").value;
+        let importance = document.getElementById("priority").value;
+        let description = document.getElementById("description").value;
+    
+        // Check if we're creating a new task or updating an existing one
+        if (titleInput.dataset.editingTaskId) {
+            editTask(title, categoryObject, dueDate, importance, description);
+        } else {
+            addTask(title, category, categoryObject, dueDate, importance, description);
+        }
         
-            modal.style.display = "none";
-        
-            } else { titleInput.classList.add('error'); }
-        });
-    // Cancels new inputs
-    cancelTaskBtn.addEventListener('click', function(event) {
-        event.preventDefault(); // Prevent the form from submitting
+    
         modal.style.display = "none";
+    
+        } else { titleInput.classList.add('error'); }
     });
-
+// Cancels new inputs
+cancelTaskBtn.addEventListener('click', function(event) {
+    event.preventDefault(); // Prevent the form from submitting
+    modal.style.display = "none";
+});
 //Delete Tasks
     //Delete Button (inside Modal)
     deleteBtnModal.addEventListener('click', function(event) {
@@ -268,7 +263,6 @@ function editTask(title, categoryObject, dueDate, importance, description){
         deleteTask(taskId);
     });
     //Delete Button (Outside Modal) event listener is located inside addTaskDiv eventlistener 'DeleteBtnBigDiv'
-
     function deleteTask(taskId) {
         if (!confirm('Are you sure you want to delete this task?')) {
             // If the user cancels, just close the modal
@@ -320,12 +314,10 @@ function editTask(title, categoryObject, dueDate, importance, description){
         // Clear the editingTaskId since we've just deleted the task
         delete titleInput.dataset.editingTaskId;
     }
-
 // Remove the error class when the title input value changes
 titleInput.addEventListener('input', function() {
     this.classList.remove('error');
 });
-
 
 // ---------------------------------------
 // Category Constructor
@@ -346,77 +338,134 @@ class Category {
         this.tasks = this.tasks.filter(task => task.id !== taskId);
     }
 }
-    // Function to initialize default categories
-    function initializeCategories() {
-        // Initialize default categories
-        let defaultCategories = ["Inbox", "Chores", "Work", "Programming"];
-        let categories = defaultCategories.map(categoryName => new Category(categoryName));
-        let taskCounter = categories.reduce((count, category) => count + category.tasks.length, 0);
+// Function to initialize default categories
+function initializeCategories() {
+    // Initialize default categories
+    const categoryButtons = document.querySelectorAll('.categoriesDiv button');
+    let categories = Array.from(categoryButtons).map(button => new Category(button.textContent.trim()));
 
-        return { categories, taskCounter };
-    } let { categories, taskCounter } = initializeCategories();
+    let taskCounter = categories.reduce((count, category) => count + category.tasks.length, 0);
+    console.log(categories);
 
-// Event listeners for the buttons
-allBtn.addEventListener('click', function () {
-    // Implement your logic here for displaying all tasks
-    // For example, you can show all tasks or remove any filtering criteria
-    // For now, let's assume you want to show all tasks in the tasksContainer
-    displayAllTasks();
-  });
-  
-// Event listener for todayBtn
-todayBtn.addEventListener('click', function () {
-    // Get the current date
-    const today = new Date();
-    today.setHours(0, 0, 0, 0); // Set hours, minutes, seconds, and milliseconds to 0 to compare only the dates
-  
-    // Loop through all taskContainerDiv elements and check their tasks' due dates
-    const allTaskContainerDivs = document.querySelectorAll('.taskContainerDiv');
-    allTaskContainerDivs.forEach((taskContainerDiv) => {
-      const taskDiv = taskContainerDiv.querySelector('.taskDiv'); // Get the taskDiv inside the current taskContainerDiv
-      const taskId = taskDiv.dataset.taskId;
-      const task = getTaskById(taskId); // Retrieve the task object by ID
-  
-      // Check if the task's due date is before or equal to today's date
-      const taskDueDate = new Date(formatDateForInput(task.dueDate));
-      taskDueDate.setHours(0, 0, 0, 0);
-  
-      if (taskDueDate <= today) {
-        // Show the taskContainerDiv if its due date is before or equal to today
-        taskContainerDiv.style.display = 'block';
-        console.log("task: " + taskId + ", due date: " + taskDueDate);
-      } else {
-        // Hide the taskContainerDiv if its due date is after today
-        taskContainerDiv.style.display = 'none';
-        console.log("task: " + taskId + ", due date: " + taskDueDate);
-
-      }
+    // Clear any existing options
+    let categorySelect = document.getElementById('category');
+    while (categorySelect.firstChild) {
+        categorySelect.removeChild(categorySelect.firstChild);
+    }
+    // Add new options for each categroy
+    categories.forEach(category => {
+        let option = document.createElement('option');
+        option.value = category.name;
+        option.textContent = category.name;
+        categorySelect.appendChild(option);
     });
-  });
-  
-  
 
-thisWeekBtn.addEventListener('click', function () {
-displayTasksDueThisWeek();
-});
+    return { categories, taskCounter };
+} let { categories, taskCounter } = initializeCategories();
 
-thisMonthBtn.addEventListener('click', function () {
-displayTasksDueThisMonth();
-});
+function timelinesFilter(){
+    // Event listeners for the buttons
+    allBtn.addEventListener('click', function () {
+        const allTaskContainerDivs = document.querySelectorAll('.taskContainerDiv');
+        allTaskContainerDivs.forEach((taskContainerDiv) => {
+            taskContainerDiv.style.display = 'block';
+        });
+    });
+    // Event listener for todayBtn
+    todayBtn.addEventListener('click', function () {
+        // Get the current date
+        const today = new Date();
+        today.setHours(0, 0, 0, 0); // Set hours, minutes, seconds, and milliseconds to 0 to compare only the dates
+    
+        // Loop through all taskContainerDiv elements and check their tasks' due dates
+        const allTaskContainerDivs = document.querySelectorAll('.taskContainerDiv');
+        allTaskContainerDivs.forEach((taskContainerDiv) => {
+        const taskDiv = taskContainerDiv.querySelector('.taskDiv'); // Get the taskDiv inside the current taskContainerDiv
+        const taskId = taskDiv.dataset.taskId;
+        const task = getTaskById(taskId); // Retrieve the task object by ID
+    
+        // Check if the task's due date is before or equal to today's date
+        const taskDueDate = new Date(formatDateForInput(task.dueDate));
+        taskDueDate.setHours(0, 0, 0, 0);
+    
+        if (taskDueDate <= today) {
+            // Show the taskContainerDiv if its due date is before or equal to today
+            taskContainerDiv.style.display = 'block';
+            console.log("task: " + taskId + ", due date: " + taskDueDate);
+        } else {
+            // Hide the taskContainerDiv if its due date is after today
+            taskContainerDiv.style.display = 'none';
+            console.log("task: " + taskId + ", due date: " + taskDueDate);
+        }
+        });
+    });
+    // Event listener for thisWeekBtn
+    thisWeekBtn.addEventListener('click', function () {
+        // Get the current date and the date seven days from now
+        const today = new Date();
+        today.setHours(0, 0, 0, 0); // Set hours, minutes, seconds, and milliseconds to 0 to compare only the dates
+    
+        const oneWeekFromNow = new Date();
+        oneWeekFromNow.setDate(today.getDate() + 7); // Get the date seven days from now
+        oneWeekFromNow.setHours(0, 0, 0, 0);
+    
+        // Loop through all taskContainerDiv elements and check their tasks' due dates
+        const allTaskContainerDivs = document.querySelectorAll('.taskContainerDiv');
+        allTaskContainerDivs.forEach((taskContainerDiv) => {
+        const taskDiv = taskContainerDiv.querySelector('.taskDiv'); // Get the taskDiv inside the current taskContainerDiv
+        const taskId = taskDiv.dataset.taskId;
+        const task = getTaskById(taskId); // Retrieve the task object by ID
+    
+        // Check if the task's due date is before or equal to one week from now
+        const taskDueDate = new Date(formatDateForInput(task.dueDate));
+        taskDueDate.setHours(0, 0, 0, 0);
+    
+        if (taskDueDate <= oneWeekFromNow) {
+            // Show the taskContainerDiv if its due date is within the next week
+            taskContainerDiv.style.display = 'block';
+            console.log("task: " + taskId + ", due date: " + taskDueDate);
+        } else {
+            // Hide the taskContainerDiv if its due date is after one week from now
+            taskContainerDiv.style.display = 'none';
+            console.log("task: " + taskId + ", due date: " + taskDueDate);
+        }
+        });
+    });
+    thisMonthBtn.addEventListener('click', function () {
+        // Get the current date and the date seven days from now
+        const today = new Date();
+        today.setHours(0, 0, 0, 0); // Set hours, minutes, seconds, and milliseconds to 0 to compare only the dates
+        
+        const oneMonthFromNow = new Date();
+        oneMonthFromNow.setDate(today.getDate() + 30); // Get the date seven days from now
+        oneMonthFromNow.setHours(0, 0, 0, 0);
+        
+        // Loop through all taskContainerDiv elements and check their tasks' due dates
+        const allTaskContainerDivs = document.querySelectorAll('.taskContainerDiv');
+        allTaskContainerDivs.forEach((taskContainerDiv) => {
+            const taskDiv = taskContainerDiv.querySelector('.taskDiv'); // Get the taskDiv inside the current taskContainerDiv
+            const taskId = taskDiv.dataset.taskId;
+            const task = getTaskById(taskId); // Retrieve the task object by ID
+        
+            // Check if the task's due date is before or equal to one week from now
+            const taskDueDate = new Date(formatDateForInput(task.dueDate));
+            taskDueDate.setHours(0, 0, 0, 0);
+        
+            if (taskDueDate <= oneMonthFromNow) {
+            // Show the taskContainerDiv if its due date is within the next week
+            taskContainerDiv.style.display = 'block';
+            console.log("task: " + taskId + ", due date: " + taskDueDate);
+            } else {
+            // Hide the taskContainerDiv if its due date is after one week from now
+            taskContainerDiv.style.display = 'none';
+            console.log("task: " + taskId + ", due date: " + taskDueDate);
+            }
+        });
+    });
+}  timelinesFilter();
 
-// Functions to implement the task filtering logic
-function displayAllTasks() {
-}
 
-function displayTasksDueToday() {
 
-}
-
-function displayTasksDueThisWeek() {
-}
-
-function displayTasksDueThisMonth() {
-}    
     
 function getTaskById(taskId) {
     // Loop through each category
@@ -432,8 +481,6 @@ function getTaskById(taskId) {
   }
 
 // ---------------------------------------
-
-
 
 // Nav Collapse & Expand
 collapseBtn.addEventListener('click', function() {
