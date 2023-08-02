@@ -95,6 +95,15 @@ li{
     margin: 8px;
     background-color: white;
 }
+#newCatBtn{
+    margin: 12px;
+    margin-left: 2px;
+    display: flex;
+    gap: 12px;
+    font-weight: bolder;
+    color: rgb(57, 38, 153);
+    cursor: pointer;
+}
 .catBtns{
     padding: 6px 16px;
     background-color: white;
@@ -140,7 +149,6 @@ li{
     font-weight: bolder;
     color: rgb(57, 38, 153);
     cursor: pointer;
-
 }
 .taskBigDiv{
     display:flex;
@@ -212,7 +220,7 @@ footer{
 }
 
 /* ------------------------------------------------- */
-.modal {
+#modal {
     display: none; 
     position: fixed; 
     z-index: 1; 
@@ -292,21 +300,46 @@ footer{
     padding: 8px;
     box-sizing: border-box;
 }
-
-
-  .close {
+.close {
     color: #aaa;
     float: right;
     font-size: 28px;
     font-weight: bold;
   }
-  
-  .close:hover,
-  .close:focus {
+
+#catModal{
+    display: none; 
+    position: fixed; 
+    z-index: 1; 
+    left: 0;
+    top: 0;
+    width: 100%; 
+    height: 100%; 
+    overflow: auto; 
+    background-color: rgb(0,0,0);
+    background-color: rgba(0,0,0,0.5); 
+}
+.cat-modal-content{
+    background-color: #fefefe;
+    margin: 15% auto;
+    padding: 20px;
+    min-width: 310px;
+    width: 30%; 
+    border-radius: 12px;
+
+}
+  .closeCatModal {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+  }
+  .close:hover,.close:focus,.closeCatModal:hover,.closeCatModal:focus {
     color: black;
     text-decoration: none;
     cursor: pointer;
   }
+  
   
 
 /* ------------------------------------------------- */

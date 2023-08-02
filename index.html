@@ -32,6 +32,10 @@
         </div>
         <div class="categoriesDiv">
             <h3>Categories</h3>
+            <div id="newCatBtn">
+                <img class= "symbol" src="./images/add-4.png" alt="new">
+                <div>New Category</div>
+            </div>
             <ul>
                 <li><button id="inboxBtn" class="catBtns">Inbox</button></li>
                 <li><button id="responsibilitiesBtns" class="catBtns">Responsibilities</button></li>
@@ -88,6 +92,16 @@
                 </div>
                 <img src="./images/delete.png" id="delete" alt="Delete">
             </div>
+          </form>
+        </div>
+    </div>
+
+    <div id="catModal" class="modal">
+        <div class="cat-modal-content">
+          <span class="closeCatModal">&times;</span>
+          <form action="">
+            <label for="catTitle">Title</label><input type="text" id="catTitle">
+            <input type="color" id="myColor" name="myColor">
           </form>
         </div>
     </div>

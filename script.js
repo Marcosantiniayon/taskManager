@@ -1,6 +1,9 @@
 const content = document.querySelector('.content');
 const nav = document.querySelector('nav');
-const modal = document.querySelector('.modal');
+const modal = document.querySelector('#modal');
+let span = document.getElementsByClassName("close")[0];
+const catModal = document.querySelector('#catModal');
+let spanCatModal = document.getElementsByClassName("closeCatModal")[0];
 const tasksContainer = document.querySelector('.tasksContainer');
 let form = document.querySelector('form');
 const collapseBtn = document.getElementById('collapseBtn');
@@ -11,14 +14,13 @@ const thisMonthBtn = document.getElementById('thisMonthBtn');
 const createTaskBtn = document.getElementById('createTask');
 const okTaskBtn = document.getElementById('okTaskBtn')
 const cancelTaskBtn = document.getElementById('cancelTaskBtn');
-let deleteBtnModal = document.getElementById('delete');
+const deleteBtnModal = document.getElementById('delete');
+const newCatBtn = document.getElementById('newCatBtn');
 let titleInput= document.getElementById("title")
 let categorySelect = document.getElementById("category");
 let dueDateSelect = document.getElementById("dueDate");
 let prioritySelect = document.getElementById("priority");
 let descriptionInput = document.getElementById("description");
-
-let span = document.getElementsByClassName("close")[0];
 
 // ---------------------------- TASKS ----------------------------
 class Task {
@@ -312,7 +314,6 @@ titleInput.addEventListener('input', function() {
 });
 
 // ---------------------------- CATEGORIES & TIMELINES FILTER  ----------------------------
-// Category Constructor
 class Category {
     constructor(name) {
         this.name = name;
@@ -364,8 +365,10 @@ function getTaskById(taskId) {
     }
     return null; // Return null if no task with the given ID is found
   }
-
-  
+newCatBtn.addEventListener('click', function() {
+   // Show the modal
+   catModal.style.display = "block";
+});
 
 function timelinesFilter(){
     function getCurrentDate(){
@@ -484,12 +487,16 @@ collapseBtn.addEventListener('click', function() {
 span.onclick = function() {
     modal.style.display = "none";
     delete titleInput.dataset.editingTaskId;
-}    
+}; spanCatModal.onclick = function() {
+    catModal.style.display = "none";
+}     
 window.onclick = function(event) { // Closes Modal when clicking outside of it 
     if (event.target == modal) {
       modal.style.display = "none";
-    }
-  }
+    } else if(event.target == catModal) {
+        catModal.style.display = "none";
+      }
+}
 
 // Enter = Click
 form.addEventListener('keydown', function(event) {
