@@ -20,7 +20,7 @@ let descriptionInput = document.getElementById("description");
 
 let span = document.getElementsByClassName("close")[0];
 
-// Task Constructor
+// ---------------------------- TASKS ----------------------------
 class Task {
     constructor(id, title, categoryObject, dueDate, priority, description) {
         this.id = id;
@@ -37,8 +37,8 @@ class Task {
     }
 }
 
-// Adding New Task - Brings up new task modal
-createTaskBtn.addEventListener('click', function() {
+// Add | Edit Task
+createTaskBtn.addEventListener('click', function() { // Brings up new task modal 
     // Set default inputs
     titleInput.value = "";
     categorySelect.value = "Inbox";
@@ -57,12 +57,40 @@ createTaskBtn.addEventListener('click', function() {
     // Show the modal
     modal.style.display = "block";
 });
-// Creates / Edits task with input values
+cancelTaskBtn.addEventListener('click', function(event) {
+    event.preventDefault(); // Prevent the form from submitting
+    modal.style.display = "none";
+});
+okTaskBtn.addEventListener('click', function(event) { //Calls addTask or editTask
+    if (document.querySelector('form').reportValidity()) {
+        event.preventDefault();
+        titleInput.classList.remove('error');
+        
+        // Assign property values based off inputs
+        let title = document.getElementById("title").value;
+        let category = document.getElementById("category").value;
+        let categoryValue = document.getElementById("category").value;
+        let categoryObject = categories.find(category => category.name === categoryValue);
+        let dueDate = document.getElementById("dueDate").value;
+        let importance = document.getElementById("priority").value;
+        let description = document.getElementById("description").value;
+    
+        // Check if we're creating a new task or updating an existing one
+        if (titleInput.dataset.editingTaskId) {
+            editTask(title, categoryObject, dueDate, importance, description);
+        } else {
+            addTask(title, category, categoryObject, dueDate, importance, description);
+        }
+        
+    
+        modal.style.display = "none";
+    
+        } else { titleInput.classList.add('error'); }
+    });
 function addTask(title, category, categoryObject, dueDate, importance, description){
     // Create Task Object 
     let newTask = new Task(taskCounter, title, categoryObject, dueDate, importance, description);
     categoryObject.addTaskToCat(newTask);
-
     let taskId = newTask.id
     
     // Container div for the task and the line break
@@ -85,7 +113,7 @@ function addTask(title, category, categoryObject, dueDate, importance, descripti
             titleInput.value = newTask.title;
             categorySelect.value = newTask.category.name;
             dueDateSelect.value = newTask.dueDate;
-            prioritySelect.value = newTask.priority;
+            prioritySelect.value = newTask.importance;
             descriptionInput.value = newTask.description;
         
             // Set the data attribute on the title input to the task's id so we know which task is being edited
@@ -94,14 +122,13 @@ function addTask(title, category, categoryObject, dueDate, importance, descripti
             // Show the modal
             modal.style.display = "block";
         });
-
             const taskPrim = document.createElement('div');
-            taskPrim.classList.add('taskPrim');
+              taskPrim.classList.add('taskPrim');
             taskDiv.appendChild(taskPrim);
 
                 const checkbox = document.createElement('input');
-                checkbox.type = 'checkbox';
-                checkbox.addEventListener('click', function(event) {
+                  checkbox.type = 'checkbox';
+                  checkbox.addEventListener('click', function(event) {
                     event.stopPropagation();
                     if (this.checked) {
                     taskTitle.classList.add('complete');
@@ -114,66 +141,54 @@ function addTask(title, category, categoryObject, dueDate, importance, descripti
                     taskDueDate.classList.remove('complete');
                     taskPriority.classList.remove('complete');
                     }
-                });
+                  });
 
                 const taskTitle = document.createElement('div');
-                taskTitle.classList.add('taskTitle');
-                taskTitle.textContent = title;
-
+                  taskTitle.classList.add('taskTitle');
+                  taskTitle.textContent = title;
                 const taskCategory = document.createElement('div');
-                taskCategory.classList.add('taskCategory');
-                taskCategory.textContent = "(" + category + ")";
+                  taskCategory.classList.add('taskCategory');
+                  taskCategory.textContent = "(" + category + ")";
 
-                taskPrim.appendChild(checkbox);
-                taskPrim.appendChild(taskTitle);
-                taskPrim.appendChild(taskCategory);
+              taskPrim.appendChild(checkbox);taskPrim.appendChild(taskTitle);taskPrim.appendChild(taskCategory);
 
             const taskSec = document.createElement('div');
-            taskSec.classList.add('taskSec');
+              taskSec.classList.add('taskSec');
             taskDiv.appendChild(taskSec);
 
                 const taskDueDate = document.createElement('div');
-                taskDueDate.classList.add('taskDueDate');
-                taskDueDate.textContent = formatDateForInput(dueDate);
-
+                  taskDueDate.classList.add('taskDueDate');
+                  taskDueDate.textContent = formatDateForInput(dueDate);
                 const taskPriority = document.createElement('div');
-                taskPriority.classList.add('taskDueDate');
+                  taskPriority.classList.add('taskDueDate');
                 const taskPriorityImg = document.createElement('img');
                 if(prioritySelect.value == "Highest"){taskPriorityImg.src = "./images/warning-333.png"}
                 else if(prioritySelect.value == "High"){taskPriorityImg.src = "./images/warning-222.png"}
                 else if(prioritySelect.value == "Medium"){taskPriorityImg.src = "./images/warning-111.png"}
                 else {taskPriorityImg.src = "./images/warning_grey.png"}
-                taskPriorityImg.classList.add('symbol');
-                taskPriority.appendChild(taskPriorityImg);
+                  taskPriorityImg.classList.add('symbol');
+                  taskPriority.appendChild(taskPriorityImg);
                 const deleteBtnBigDiv = document.createElement('img');
-                deleteBtnBigDiv.id = taskId;
-                deleteBtnBigDiv.src = "./images/delete.png"; // Change to your delete image's path
-                deleteBtnBigDiv.classList.add('symbol');
+                  deleteBtnBigDiv.id = taskId;
+                  deleteBtnBigDiv.src = "./images/delete.png"; // Change to your delete image's path
+                  deleteBtnBigDiv.classList.add('symbol');
 
                 deleteBtnBigDiv.addEventListener('click', function(event) {
                     event.stopPropagation();
-            
                     // Get taskId from the editingTaskId data attribute
                     let taskId = deleteBtnBigDiv.id;
-            
                     if (!taskId) {
                         console.log('No task is currently being edited');
                         return;
-                    }
-            
-                    deleteTask(taskId);
+                    } deleteTask(taskId);
                 });
 
-                taskSec.appendChild(taskDueDate);
-                taskSec.appendChild(taskPriority);
-                taskBigDiv.appendChild(taskDiv);
-                taskBigDiv.appendChild(deleteBtnBigDiv);
+              taskSec.appendChild(taskDueDate); taskSec.appendChild(taskPriority);
+            taskBigDiv.appendChild(taskDiv);taskBigDiv.appendChild(deleteBtnBigDiv);
 
         const linebreak = document.createElement('hr');
 
-        taskContainerDiv.appendChild(taskBigDiv);
-        taskContainerDiv.appendChild(linebreak);
-        tasksContainer.appendChild(taskContainerDiv);    
+        taskContainerDiv.appendChild(taskBigDiv);taskContainerDiv.appendChild(linebreak);tasksContainer.appendChild(taskContainerDiv);    
     } addTaskDiv(taskId, title, category, dueDate, taskCounter, prioritySelect);
     
 }
@@ -216,110 +231,87 @@ function editTask(title, categoryObject, dueDate, importance, description){
     delete titleInput.dataset.editingTaskId;
     modal.style.display = "none";
 }
-okTaskBtn.addEventListener('click', function(event) {
-    if (document.querySelector('form').reportValidity()) {
-        event.preventDefault();
-        titleInput.classList.remove('error');
-        
-        // Assign property values based off inputs
-        let title = document.getElementById("title").value;
-        let category = document.getElementById("category").value;
-        let categoryValue = document.getElementById("category").value;
-        let categoryObject = categories.find(category => category.name === categoryValue);
-        let dueDate = document.getElementById("dueDate").value;
-        let importance = document.getElementById("priority").value;
-        let description = document.getElementById("description").value;
-    
-        // Check if we're creating a new task or updating an existing one
-        if (titleInput.dataset.editingTaskId) {
-            editTask(title, categoryObject, dueDate, importance, description);
-        } else {
-            addTask(title, category, categoryObject, dueDate, importance, description);
-        }
-        
-    
-        modal.style.display = "none";
-    
-        } else { titleInput.classList.add('error'); }
-    });
-// Cancels new inputs
-cancelTaskBtn.addEventListener('click', function(event) {
-    event.preventDefault(); // Prevent the form from submitting
-    modal.style.display = "none";
-});
-//Delete Tasks
-    //Delete Button (inside Modal)
-    deleteBtnModal.addEventListener('click', function(event) {
-        event.stopPropagation();
+function formatDateForInput(dateString) {
+    const date = new Date(dateString);
+    const offset = date.getTimezoneOffset(); // Get the timezone offset in minutes
+    date.setMinutes(date.getMinutes() + offset); // Adjust the date by the timezone offset
+    const mm = String(date.getMonth() + 1).padStart(2, '0');
+    const dd = String(date.getDate()).padStart(2, '0');
+    const yyyy = date.getFullYear();
+    return `${mm}/${dd}/${yyyy}`;
+  }
 
-        // Get taskId from the editingTaskId data attribute
-        let taskId = titleInput.dataset.editingTaskId;
+//Delete Task
+deleteBtnModal.addEventListener('click', function(event) {
+    event.stopPropagation();
 
-        if (!taskId) {
-            console.log('No task is currently being edited');
-            return;
-        }
+    // Get taskId from the editingTaskId data attribute
+    let taskId = titleInput.dataset.editingTaskId;
 
-        deleteTask(taskId);
-    });
-    //Delete Button (Outside Modal) event listener is located inside addTaskDiv eventlistener 'DeleteBtnBigDiv'
-    function deleteTask(taskId) {
-        if (!confirm('Are you sure you want to delete this task?')) {
-            // If the user cancels, just close the modal
-            modal.style.display = "none";
-            delete titleInput.dataset.editingTaskId;
-            return;
-        }
-
-        let taskDiv = document.getElementById(taskId);
-        if (!taskDiv) {
-            console.error(`No task div found with id ${taskId}`);
-            delete titleInput.dataset.editingTaskId;
-            return;
-        }
-
-        // Find the task object that corresponds to this taskId
-        let taskObject;
-        let taskCategory;
-        for (let category of categories) {
-            taskObject = category.tasks.find((task) => task.id == taskId);
-            if (taskObject) {
-                taskCategory = category;
-                break;
-            }
-        }
-
-
-        // Remove the task from the category's tasks array
-        taskCategory.removeTaskFromCat(taskId);
-
-        // Update the taskCounter
-        taskCounter--;
-
-        // Update the taskCounter
-        taskCounter = categories.reduce((count, category) => count + category.tasks.length, 0);
-
-        // Get the parent node (taskContainerDiv) of the taskDiv
-        let taskContainerDiv = taskDiv.parentNode;
-
-        // Remove both the taskContainerDiv and the <hr> element (sibling of taskContainerDiv)
-        if (taskContainerDiv && taskContainerDiv.nextElementSibling && taskContainerDiv.nextElementSibling.tagName === 'HR') {
-            taskContainerDiv.nextElementSibling.remove(); // Remove <hr> element
-        }
-        taskContainerDiv.remove(); // Remove taskContainerDiv
-
-        // Hide the modal
-        modal.style.display = "none";
-
-        // Clear the editingTaskId since we've just deleted the task
-        delete titleInput.dataset.editingTaskId;
+    if (!taskId) {
+        console.log('No task is currently being edited');
+        return;
     }
-// Remove the error class when the title input value changes
+
+    deleteTask(taskId);
+});  // (inside modal). Outside modal ev listener is inside addTaskDiv evlistener 'DeleteBtnBigDiv'
+function deleteTask(taskId) {
+    if (!confirm('Are you sure you want to delete this task?')) {
+        // If the user cancels, just close the modal
+        modal.style.display = "none";
+        delete titleInput.dataset.editingTaskId;
+        return;
+    }
+
+    let taskDiv = document.getElementById(taskId);
+    if (!taskDiv) {
+        console.error(`No task div found with id ${taskId}`);
+        delete titleInput.dataset.editingTaskId;
+        return;
+    }
+
+    // Find the task object that corresponds to this taskId
+    let taskObject;
+    let taskCategory;
+    for (let category of categories) {
+        taskObject = category.tasks.find((task) => task.id == taskId);
+        if (taskObject) {
+            taskCategory = category;
+            break;
+        }
+    }
+
+
+    // Remove the task from the category's tasks array
+    taskCategory.removeTaskFromCat(taskId);
+
+    // Update the taskCounter
+    taskCounter--;
+
+    // Update the taskCounter
+    taskCounter = categories.reduce((count, category) => count + category.tasks.length, 0);
+
+    // Get the parent node (taskContainerDiv) of the taskDiv
+    let taskContainerDiv = taskDiv.parentNode;
+
+    // Remove both the taskContainerDiv and the <hr> element (sibling of taskContainerDiv)
+    if (taskContainerDiv && taskContainerDiv.nextElementSibling && taskContainerDiv.nextElementSibling.tagName === 'HR') {
+        taskContainerDiv.nextElementSibling.remove(); // Remove <hr> element
+    }
+    taskContainerDiv.remove(); // Remove taskContainerDiv
+
+    // Hide the modal
+    modal.style.display = "none";
+
+    // Clear the editingTaskId since we've just deleted the task
+    delete titleInput.dataset.editingTaskId;
+}
 titleInput.addEventListener('input', function() {
+    // Remove the error class when the title input value changes
     this.classList.remove('error');
 });
 
-// ---------------------------------------
+// ---------------------------- CATEGORIES & TIMELINES FILTER  ----------------------------
 // Category Constructor
 class Category {
     constructor(name) {
@@ -338,7 +330,6 @@ class Category {
         this.tasks = this.tasks.filter(task => task.id !== taskId);
     }
 }
-// Function to initialize default categories
 function initializeCategories() {
     // Initialize default categories
     const categoryButtons = document.querySelectorAll('.categoriesDiv button');
@@ -362,9 +353,21 @@ function initializeCategories() {
 
     return { categories, taskCounter };
 } let { categories, taskCounter } = initializeCategories();
+function getTaskById(taskId) {
+    // Loop through each category
+    for (const category of categories) {
+      // Find the task in the category's tasks array with the matching ID
+      const task = category.tasks.find((task) => task.id == taskId);
+      if (task) {
+        return task; // Return the task if found
+      }
+    }
+    return null; // Return null if no task with the given ID is found
+  }
+
+  
 
 function timelinesFilter(){
-
     function getCurrentDate(){
         const today = new Date();
         today.setHours(0, 0, 0, 0); // Set hours, minutes, seconds, and milliseconds to 0 to compare only the dates
@@ -394,41 +397,44 @@ function timelinesFilter(){
     todayBtn.addEventListener('click', function () {
         const today = getCurrentDate();
         filterTasksByDate(today);
+        todayBtn.classList.add('selectedFilter');
+        thisWeekBtn.classList.remove('selectedFilter');
+        thisMonthBtn.classList.remove('selectedFilter');
+        allBtn.classList.remove('selectedFilter');
     });
     thisWeekBtn.addEventListener('click', function () {
         const today = getCurrentDate();
         const oneWeekLater = new Date();
         oneWeekLater.setDate(today.getDate() + 7);
         filterTasksByDate(oneWeekLater);
+        thisWeekBtn.classList.add('selectedFilter');
+        todayBtn.classList.remove('selectedFilter');
+        thisMonthBtn.classList.remove('selectedFilter');
+        allBtn.classList.remove('selectedFilter');
     });
     thisMonthBtn.addEventListener('click', function () {
         const today = getCurrentDate();
         const oneMonthLater = new Date();
         oneMonthLater.setDate(today.getDate() + 30);
         filterTasksByDate(oneMonthLater);
+        thisMonthBtn.classList.add('selectedFilter');
+        thisWeekBtn.classList.remove('selectedFilter');
+        todayBtn.classList.remove('selectedFilter');
+        allBtn.classList.remove('selectedFilter');
     });
     allBtn.addEventListener('click', function () {
         const allTaskContainerDivs = document.querySelectorAll('.taskContainerDiv');
         allTaskContainerDivs.forEach((taskContainerDiv) => {
             taskContainerDiv.style.display = 'block';
         });
+        allBtn.classList.add('selectedFilter');
+        thisWeekBtn.classList.remove('selectedFilter');
+        thisMonthBtn.classList.remove('selectedFilter');
+        todayBtn.classList.remove('selectedFilter');
     });
-}  timelinesFilter();
+} timelinesFilter();  
 
-function getTaskById(taskId) {
-    // Loop through each category
-    for (const category of categories) {
-      // Find the task in the category's tasks array with the matching ID
-      const task = category.tasks.find((task) => task.id == taskId);
-      if (task) {
-        return task; // Return the task if found
-      }
-    }
-  
-    return null; // Return null if no task with the given ID is found
-  }
-
-// ---------------------------------------
+// ---------------------------- WEBPAGE ----------------------------
 
 // Nav Collapse & Expand
 collapseBtn.addEventListener('click', function() {
@@ -478,9 +484,8 @@ collapseBtn.addEventListener('click', function() {
 span.onclick = function() {
     modal.style.display = "none";
     delete titleInput.dataset.editingTaskId;
-}
-  // Closes Modal when clicking outside of it     
-window.onclick = function(event) {
+}    
+window.onclick = function(event) { // Closes Modal when clicking outside of it 
     if (event.target == modal) {
       modal.style.display = "none";
     }
@@ -494,14 +499,6 @@ form.addEventListener('keydown', function(event) {
     }
 });
 
-function formatDateForInput(dateString) {
-    const date = new Date(dateString);
-    const offset = date.getTimezoneOffset(); // Get the timezone offset in minutes
-    date.setMinutes(date.getMinutes() + offset); // Adjust the date by the timezone offset
-    const mm = String(date.getMonth() + 1).padStart(2, '0');
-    const dd = String(date.getDate()).padStart(2, '0');
-    const yyyy = date.getFullYear();
-    return `${mm}/${dd}/${yyyy}`;
-  }
+
   
   
