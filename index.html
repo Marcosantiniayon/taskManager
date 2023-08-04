@@ -64,25 +64,32 @@
           <span class="close">&times;</span>
           <form action="">
             <div class="modal-top"> 
-                <input type="text" id="title" value="Task Name" placeholder="Task Name" required> <!-- Title -->
-                <label for="category">Category</label>
-                <select id="category"> <!-- Category -->
-                    <option value="Inbox" selected>Inbox</option>
-                    <option value="Chores">Chores</option>
-                    <option value="Work">Work</option>
-                    <option value="Programming">Programming</option>
-
-                </select>
+                <div class="modal-left">
+                    <input type="text" id="title" value="Task Name" placeholder="Task Name" required> <!-- Title -->
                 </div>
+                <div class="modal-right">
+                    <label class="label1" for="category">Category</label>
+                    <select id="category"> <!-- Category -->
+                        <option value="Inbox" selected>Inbox</option>
+                        <option value="Chores">Chores</option>
+                        <option value="Work">Work</option>
+                        <option value="Programming">Programming</option>
+                    </select>
+                </div>
+            </div>
             <div class="modal-mid">
-                <label for="dueDate">Due Date:</label> <input type="date" id="dueDate"> <!-- Due Date -->
-                <label for="priority">Priority: </label> 
-                <select id="priority"> <!-- Importance -->
-                    <option value="Highest">Highest</option>
-                    <option value="High">High</option>
-                    <option value="Medium">Medium</option>
-                    <option value="Low" selected>Low</option>
-                </select>
+                <div class="modal-left">
+                    <label class="label1" id="dueDateLbl" for="dueDate">Due Date</label> <input type="date" id="dueDate"> <!-- Due Date -->
+                </div>
+                <div class="modal-right">
+                    <label class="label1" for="priority">Priority</label> 
+                    <select id="priority"> <!-- Importance -->
+                        <option value="Highest">Highest</option>
+                        <option value="High">High</option>
+                        <option value="Medium">Medium</option>
+                        <option value="Low" selected>Low</option>
+                    </select>
+                </div>
             </div>
             <textarea id="description" rows="6" placeholder="Description"></textarea>
             <div class="modal-bottom">
@@ -99,9 +106,25 @@
     <div id="catModal" class="modal">
         <div class="cat-modal-content">
           <span class="closeCatModal">&times;</span>
-          <form action="">
-            <label for="catTitle">Title</label><input type="text" id="catTitle">
-            <input type="color" id="myColor" name="myColor">
+          <form id="catForm" action="">
+                <div class="modal-top">
+                    <div class="catTopDiv">
+                        <input type="text" id="catTitle" placeholder="Category Title">
+                        <div class="catColorDiv">
+                            <label id="catColorLbl" for="colorPicker">Color</label>
+                            <input type="color" id="colorPicker">
+                            <div id="colorDisplay"></div>
+                        </div>
+                    </div>
+                </div>
+                <!-- <div></div> -->
+                <div class="modal-bottom">
+                    <div class="modal-buttons">
+                        <button id="cancelCatBtn">Cancel</button>
+                        <button type="submit" id="okCatBtn">Ok</button>
+                    </div>
+                </div>
+
           </form>
         </div>
     </div>

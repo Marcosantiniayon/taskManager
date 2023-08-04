@@ -369,6 +369,17 @@ newCatBtn.addEventListener('click', function() {
    // Show the modal
    catModal.style.display = "block";
 });
+//color picker
+const colorPicker = document.getElementById('colorPicker');
+const colorDisplay = document.getElementById('colorDisplay');
+colorDisplay.addEventListener('click', function() {
+    colorPicker.click();
+  });
+  
+  // When you pick a color, update the display
+  colorPicker.addEventListener('input', function() {
+    colorDisplay.style.background = colorPicker.value;
+  });
 
 function timelinesFilter(){
     function getCurrentDate(){
