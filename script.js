@@ -16,6 +16,9 @@ const okTaskBtn = document.getElementById('okTaskBtn')
 const cancelTaskBtn = document.getElementById('cancelTaskBtn');
 const deleteBtnModal = document.getElementById('delete');
 const newCatBtn = document.getElementById('newCatBtn');
+const okCatBtn = document.getElementById('okCatBtn')
+const cancelCatBtn = document.getElementById('cancelCatBtn')
+
 let titleInput= document.getElementById("title")
 let categorySelect = document.getElementById("category");
 let dueDateSelect = document.getElementById("dueDate");
@@ -98,8 +101,7 @@ okTaskBtn.addEventListener('click', function(event) { //Calls addTask or editTas
         } else {
             addTask(title, category, categoryObject, dueDate, importance, description);
         }
-        
-    
+
         modal.style.display = "none";
     
         } else { titleInput.classList.add('error'); }
@@ -319,8 +321,9 @@ titleInput.addEventListener('input', function() {
 
 // ---------------------------- CATEGORIES & TIMELINES FILTER  ----------------------------
 class Category {
-    constructor(name) {
+    constructor(name, color) {
         this.name = name;
+        this.color = color;
         this.tasks = [];
     }
 
@@ -372,6 +375,32 @@ function getTaskById(taskId) {
 newCatBtn.addEventListener('click', function() {
    // Show the modal
    catModal.style.display = "block";
+});
+okCatBtn.addEventListener('click', function(event) {
+    event.preventDefault(); // Prevent the form from submitting
+
+    // Get the category name and color from the form inputs
+    let catTitle = document.getElementById('catTitle').value;
+    let catColor = document.getElementById('colorPicker').value;
+
+    // Create a new list item
+    let newCategory = document.createElement('li');
+    let newButton = document.createElement('button');
+    newButton.innerText = catTitle;
+    newButton.style.backgroundColor = catColor;
+    if (isDarkColor(catColor)) {
+        newButton.style.color = 'white';
+    } else {
+        newButton.style.color = 'black';
+    }
+    newCategory.appendChild(newButton);
+    document.getElementById('categoriesList').appendChild(newCategory);
+
+    catModal.style.display = "none";
+});
+
+cancelCatBtn.addEventListener('click', function() {
+    
 });
 //color picker
 const colorPicker = document.getElementById('colorPicker');
@@ -451,6 +480,25 @@ function timelinesFilter(){
         todayBtn.classList.remove('selectedFilter');
     });
 } timelinesFilter();  
+
+function isDarkColor(color) {
+    // Convert hex color to rgb
+    let rgb;
+    if (color.startsWith('#')) {
+        let r = parseInt(color.slice(1, 3), 16);
+        let g = parseInt(color.slice(3, 5), 16);
+        let b = parseInt(color.slice(5, 7), 16);
+        rgb = { r, g, b };
+    } else {
+        // Assume it's already an rgb color
+        rgb = color;
+    }
+
+    // Calculate brightness on a scale from 0 to 255
+    let brightness = Math.round(((rgb.r * 299) + (rgb.g * 587) + (rgb.b * 114)) / 1000);
+    
+    return brightness < 125; // Return true if the color is dark
+}
 
 // ---------------------------- WEBPAGE ----------------------------
 
