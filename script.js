@@ -6,6 +6,7 @@ const catModal = document.querySelector('#catModal');
 let spanCatModal = document.getElementsByClassName("closeCatModal")[0];
 const tasksContainer = document.querySelector('.tasksContainer');
 let form = document.querySelector('form');
+let pageTitle = document.getElementById('pageTitle');
 const collapseBtn = document.getElementById('collapseBtn');
 const allBtn = document.getElementById('allBtn');
 const todayBtn = document.getElementById('todayBtn');
@@ -18,7 +19,10 @@ const deleteBtnModal = document.getElementById('delete');
 const newCatBtn = document.getElementById('newCatBtn');
 const okCatBtn = document.getElementById('okCatBtn')
 const cancelCatBtn = document.getElementById('cancelCatBtn')
-
+const inboxBtn = document.getElementById('inboxBtn')
+const responsibilitiesBtn = document.getElementById('responsibilitiesBtn')
+const eventsBtn = document.getElementById('eventsBtn')
+const programmingBtn = document.getElementById('programmingBtn')
 let titleInput= document.getElementById("title")
 let categorySelect = document.getElementById("category");
 let dueDateSelect = document.getElementById("dueDate");
@@ -36,12 +40,10 @@ class Task {
         this.description = description;
         this.complete = false; 
     }
-
     toggleComplete() {
         this.complete = !this.complete;
     }
 }
-
 // Add | Edit Tasks
 createTaskBtn.addEventListener('click', function() { // Brings up new task modal 
     // Set default inputs
@@ -344,7 +346,6 @@ function initializeCategories() {
     let categories = Array.from(categoryButtons).map(button => new Category(button.textContent.trim()));
 
     let taskCounter = categories.reduce((count, category) => count + category.tasks.length, 0);
-    console.log(categories);
 
     // Clear any existing options
     let categorySelect = document.getElementById('category');
@@ -358,6 +359,21 @@ function initializeCategories() {
         option.textContent = category.name;
         categorySelect.appendChild(option);
     });
+
+    function setDefaultCatEventListeners(){
+        inboxBtn.addEventListener('click', function() {
+            filterByCategory(inboxBtn);
+        });
+        responsibilitiesBtn.addEventListener('click', function() {
+            filterByCategory(responsibilitiesBtn);
+        });
+        eventsBtn.addEventListener('click', function() {
+            filterByCategory(eventsBtn);
+        });
+        programmingBtn.addEventListener('click', function() {
+            filterByCategory(programmingBtn);
+        });
+    }setDefaultCatEventListeners();
 
     return { categories, taskCounter };
 } let { categories, taskCounter } = initializeCategories();
@@ -383,22 +399,35 @@ okCatBtn.addEventListener('click', function(event) {
     let catTitle = document.getElementById('catTitle').value;
     let catColor = document.getElementById('colorPicker').value;
 
+    // Create a new category instance
+    let newCategory = new Category(catTitle, catColor);
+    categories.push(newCategory);
+
     // Create a new list item
-    let newCategory = document.createElement('li');
+    let newCategoryElement = document.createElement('li');
     let newButton = document.createElement('button');
     newButton.innerText = catTitle;
+    newButton.classList.add('catBtns');
     newButton.style.backgroundColor = catColor;
+
     if (isDarkColor(catColor)) {
         newButton.style.color = 'white';
     } else {
         newButton.style.color = 'black';
     }
-    newCategory.appendChild(newButton);
-    document.getElementById('categoriesList').appendChild(newCategory);
+    
+    newCategoryElement.appendChild(newButton);
+    document.getElementById('categoriesList').appendChild(newCategoryElement);
+
+    // Add event listener to change pageTitle
+    newButton.addEventListener('click', function() {
+        filterByCategory(newButton);
+    });
+
+    initializeCategories();
 
     catModal.style.display = "none";
 });
-
 cancelCatBtn.addEventListener('click', function() {
     
 });
@@ -408,12 +437,10 @@ const colorDisplay = document.getElementById('colorDisplay');
 colorDisplay.addEventListener('click', function() {
     colorPicker.click();
   });
-  
   // When you pick a color, update the display
   colorPicker.addEventListener('input', function() {
     colorDisplay.style.background = colorPicker.value;
   });
-
 function timelinesFilter(){
     function getCurrentDate(){
         const today = new Date();
@@ -480,7 +507,6 @@ function timelinesFilter(){
         todayBtn.classList.remove('selectedFilter');
     });
 } timelinesFilter();  
-
 function isDarkColor(color) {
     // Convert hex color to rgb
     let rgb;
@@ -545,6 +571,18 @@ collapseBtn.addEventListener('click', function() {
       }
     }
   });
+
+function filterByCategory(catBtn){
+    // Loop through the buttons and remove 'selectedFilter' class
+    let categoryButtons = document.querySelectorAll('.catBtns');
+    categoryButtons.forEach(function(button) {
+        button.classList.remove('selectedFilter');
+    });
+
+    catBtn.classList.add('selectedFilter')
+    console.log("category:" , catBtn);
+    document.getElementById("pageTitle").textContent = catBtn.innerText;
+}
 
 // Closing Modal
 span.onclick = function() {

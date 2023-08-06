@@ -100,6 +100,10 @@ li{
     width: auto;
     transition: transform 0.3s ease; /* for smooth transition */
 }
+    #inboxBtn{background-color: #7b7b7b; color: white;}
+    #responsibilitiesBtn{background-color: #9e8c6b;}
+    #eventsBtn{background-color: #c6bb46;}
+    #programmingBtn{background-color: #23d86e;}
 .selectedFilter{
     border: 2px solid;
     border-color: rgb(255, 255, 255);
@@ -121,7 +125,7 @@ li{
     justify-content: space-between;
     height: 60px;
 }
-#categoryTitle{
+#pageTitle{
     justify-self: baseline;
 }
 #sortBtn{
@@ -253,11 +257,9 @@ width: 178px;
 padding-left: 2px;
 font-family: 'Montserrat', sans-serif;
 }
-
 .modal-buttons{
     width:100%
 }
-
 textarea {
     width: 100%; 
     border-radius: 8px;
