@@ -23,6 +23,7 @@ const inboxBtn = document.getElementById('inboxBtn')
 const responsibilitiesBtn = document.getElementById('responsibilitiesBtn')
 const eventsBtn = document.getElementById('eventsBtn')
 const programmingBtn = document.getElementById('programmingBtn')
+let currentCategoryBtn = null;
 let titleInput= document.getElementById("title")
 let categorySelect = document.getElementById("category");
 let dueDateSelect = document.getElementById("dueDate");
@@ -48,7 +49,7 @@ class Task {
 createTaskBtn.addEventListener('click', function() { // Brings up new task modal 
     // Set default inputs
     titleInput.value = "";
-    categorySelect.value = "Inbox";
+    categorySelect.value = "All Inbox";
     let today = new Date();
     let dd = String(today.getDate()).padStart(2, '0');
     let mm = String(today.getMonth() + 1).padStart(2, '0');
@@ -240,6 +241,7 @@ function editTask(title, categoryObject, dueDate, importance, description){
 
     delete titleInput.dataset.editingTaskId;
     modal.style.display = "none";
+    filterByCategory(currentCategoryBtn);
 }
 function formatDateForInput(dateString) {
     const date = new Date(dateString);
@@ -573,15 +575,38 @@ collapseBtn.addEventListener('click', function() {
   });
 
 function filterByCategory(catBtn){
+    currentCategoryBtn = catBtn;
     // Loop through the buttons and remove 'selectedFilter' class
-    let categoryButtons = document.querySelectorAll('.catBtns');
-    categoryButtons.forEach(function(button) {
+    function removeSelectedFilters(){
+        let categoryButtons = document.querySelectorAll('.catBtns');
+        categoryButtons.forEach(function(button) {
         button.classList.remove('selectedFilter');
     });
+    }removeSelectedFilters();
+    catBtn.classList.add('selectedFilter');
 
-    catBtn.classList.add('selectedFilter')
-    console.log("category:" , catBtn);
     document.getElementById("pageTitle").textContent = catBtn.innerText;
+
+    // Loop through all taskContainerDiv elements and check their tasks' due dates
+    const allTaskContainerDivs = document.querySelectorAll('.taskContainerDiv');
+    allTaskContainerDivs.forEach((taskContainerDiv) => {
+        const taskDiv = taskContainerDiv.querySelector('.taskDiv'); // Get the taskDiv inside the current taskContainerDiv
+        const taskId = taskDiv.dataset.taskId;
+        const task = getTaskById(taskId); // Retrieve the task object by ID
+
+        // Check if the task's category is the filtered Cat
+        if (catBtn.textContent === 'All Inbox') {
+            // Show the taskContainerDiv if its part of the selected category
+            taskContainerDiv.style.display = 'block';
+        }else if (task.category.name === catBtn.textContent) {
+            // Show the taskContainerDiv if its part of the selected category
+            taskContainerDiv.style.display = 'block';
+        } else {
+            // Hide the taskContainerDiv if its not part of that category
+            taskContainerDiv.style.display = 'none';
+        }
+    });
+
 }
 
 // Closing Modal
