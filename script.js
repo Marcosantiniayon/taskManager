@@ -29,6 +29,8 @@ let categorySelect = document.getElementById("category");
 let dueDateSelect = document.getElementById("dueDate");
 let prioritySelect = document.getElementById("priority");
 let descriptionInput = document.getElementById("description");
+let selectedCategory = "All Inbox";
+let selectedEndDate = null;
 
 // ---------------------------- TASKS ----------------------------
 class Task {
@@ -241,7 +243,7 @@ function editTask(title, categoryObject, dueDate, importance, description){
 
     delete titleInput.dataset.editingTaskId;
     modal.style.display = "none";
-    filterByCategory(currentCategoryBtn);
+    filterTasksByDateAndCategory(selectedEndDate, selectedCategory);
 }
 function formatDateForInput(dateString) {
     const date = new Date(dateString);
@@ -364,16 +366,20 @@ function initializeCategories() {
 
     function setDefaultCatEventListeners(){
         inboxBtn.addEventListener('click', function() {
-            filterByCategory(inboxBtn);
+            selectedCategory = "All Inbox";
+            filterTasksByDateAndCategory(selectedEndDate, selectedCategory)
         });
         responsibilitiesBtn.addEventListener('click', function() {
-            filterByCategory(responsibilitiesBtn);
+            selectedCategory = this.textContent
+            filterTasksByDateAndCategory(selectedEndDate, selectedCategory)
         });
         eventsBtn.addEventListener('click', function() {
-            filterByCategory(eventsBtn);
+            selectedCategory = this.textContent
+            filterTasksByDateAndCategory(selectedEndDate, selectedCategory)
         });
         programmingBtn.addEventListener('click', function() {
-            filterByCategory(programmingBtn);
+            selectedCategory = this.textContent
+            filterTasksByDateAndCategory(selectedEndDate, selectedCategory)
         });
     }setDefaultCatEventListeners();
 
@@ -421,9 +427,11 @@ okCatBtn.addEventListener('click', function(event) {
     newCategoryElement.appendChild(newButton);
     document.getElementById('categoriesList').appendChild(newCategoryElement);
 
-    // Add event listener to change pageTitle
+    // Add event listener to new cat button
     newButton.addEventListener('click', function() {
-        filterByCategory(newButton);
+        selectedCategory = this.textContent
+        filterTasksByDateAndCategory(selectedEndDate, selectedCategory)
+        console.log(selectedEndDate, selectedCategory)
     });
 
     initializeCategories();
@@ -443,72 +451,6 @@ colorDisplay.addEventListener('click', function() {
   colorPicker.addEventListener('input', function() {
     colorDisplay.style.background = colorPicker.value;
   });
-function timelinesFilter(){
-    function getCurrentDate(){
-        const today = new Date();
-        today.setHours(0, 0, 0, 0); // Set hours, minutes, seconds, and milliseconds to 0 to compare only the dates
-        return today;
-    }
-    function filterTasksByDate(endDate){
-        // Loop through all taskContainerDiv elements and check their tasks' due dates
-        const allTaskContainerDivs = document.querySelectorAll('.taskContainerDiv');
-        allTaskContainerDivs.forEach((taskContainerDiv) => {
-            const taskDiv = taskContainerDiv.querySelector('.taskDiv'); // Get the taskDiv inside the current taskContainerDiv
-            const taskId = taskDiv.dataset.taskId;
-            const task = getTaskById(taskId); // Retrieve the task object by ID
-
-            // Check if the task's due date is between startDate and endDate
-            const taskDueDate = new Date(formatDateForInput(task.dueDate));
-            taskDueDate.setHours(0, 0, 0, 0);
-
-            if (taskDueDate <= endDate) {
-                // Show the taskContainerDiv if its due date is between startDate and endDate
-                taskContainerDiv.style.display = 'block';
-            } else {
-                // Hide the taskContainerDiv if its due date is outside the range
-                taskContainerDiv.style.display = 'none';
-            }
-        });
-    }    
-    todayBtn.addEventListener('click', function () {
-        const today = getCurrentDate();
-        filterTasksByDate(today);
-        todayBtn.classList.add('selectedFilter');
-        thisWeekBtn.classList.remove('selectedFilter');
-        thisMonthBtn.classList.remove('selectedFilter');
-        allBtn.classList.remove('selectedFilter');
-    });
-    thisWeekBtn.addEventListener('click', function () {
-        const today = getCurrentDate();
-        const oneWeekLater = new Date();
-        oneWeekLater.setDate(today.getDate() + 7);
-        filterTasksByDate(oneWeekLater);
-        thisWeekBtn.classList.add('selectedFilter');
-        todayBtn.classList.remove('selectedFilter');
-        thisMonthBtn.classList.remove('selectedFilter');
-        allBtn.classList.remove('selectedFilter');
-    });
-    thisMonthBtn.addEventListener('click', function () {
-        const today = getCurrentDate();
-        const oneMonthLater = new Date();
-        oneMonthLater.setDate(today.getDate() + 30);
-        filterTasksByDate(oneMonthLater);
-        thisMonthBtn.classList.add('selectedFilter');
-        thisWeekBtn.classList.remove('selectedFilter');
-        todayBtn.classList.remove('selectedFilter');
-        allBtn.classList.remove('selectedFilter');
-    });
-    allBtn.addEventListener('click', function () {
-        const allTaskContainerDivs = document.querySelectorAll('.taskContainerDiv');
-        allTaskContainerDivs.forEach((taskContainerDiv) => {
-            taskContainerDiv.style.display = 'block';
-        });
-        allBtn.classList.add('selectedFilter');
-        thisWeekBtn.classList.remove('selectedFilter');
-        thisMonthBtn.classList.remove('selectedFilter');
-        todayBtn.classList.remove('selectedFilter');
-    });
-} timelinesFilter();  
 function isDarkColor(color) {
     // Convert hex color to rgb
     let rgb;
@@ -574,41 +516,6 @@ collapseBtn.addEventListener('click', function() {
     }
   });
 
-function filterByCategory(catBtn){
-    currentCategoryBtn = catBtn;
-    // Loop through the buttons and remove 'selectedFilter' class
-    function removeSelectedFilters(){
-        let categoryButtons = document.querySelectorAll('.catBtns');
-        categoryButtons.forEach(function(button) {
-        button.classList.remove('selectedFilter');
-    });
-    }removeSelectedFilters();
-    catBtn.classList.add('selectedFilter');
-
-    document.getElementById("pageTitle").textContent = catBtn.innerText;
-
-    // Loop through all taskContainerDiv elements and check their tasks' due dates
-    const allTaskContainerDivs = document.querySelectorAll('.taskContainerDiv');
-    allTaskContainerDivs.forEach((taskContainerDiv) => {
-        const taskDiv = taskContainerDiv.querySelector('.taskDiv'); // Get the taskDiv inside the current taskContainerDiv
-        const taskId = taskDiv.dataset.taskId;
-        const task = getTaskById(taskId); // Retrieve the task object by ID
-
-        // Check if the task's category is the filtered Cat
-        if (catBtn.textContent === 'All Inbox') {
-            // Show the taskContainerDiv if its part of the selected category
-            taskContainerDiv.style.display = 'block';
-        }else if (task.category.name === catBtn.textContent) {
-            // Show the taskContainerDiv if its part of the selected category
-            taskContainerDiv.style.display = 'block';
-        } else {
-            // Hide the taskContainerDiv if its not part of that category
-            taskContainerDiv.style.display = 'none';
-        }
-    });
-
-}
-
 // Closing Modal
 span.onclick = function() {
     modal.style.display = "none";
@@ -633,4 +540,112 @@ form.addEventListener('keydown', function(event) {
 });
 
 
-  
+
+/////START HERE - filters
+
+function getCurrentDate(){
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Set hours, minutes, seconds, and milliseconds to 0 to compare only the dates
+    return today;
+}
+todayBtn.addEventListener('click', function () {
+    const today = getCurrentDate();
+    selectedEndDate = today;
+    filterTasksByDateAndCategory(selectedEndDate, selectedCategory);
+    todayBtn.classList.add('selectedFilter');
+    thisWeekBtn.classList.remove('selectedFilter');
+    thisMonthBtn.classList.remove('selectedFilter');
+    allBtn.classList.remove('selectedFilter');
+});
+thisWeekBtn.addEventListener('click', function () {
+    const today = getCurrentDate();
+    const oneWeekLater = new Date();
+    oneWeekLater.setDate(today.getDate() + 7);
+    selectedEndDate = oneWeekLater;
+    filterTasksByDateAndCategory(selectedEndDate, selectedCategory);
+    thisWeekBtn.classList.add('selectedFilter');
+    todayBtn.classList.remove('selectedFilter');
+    thisMonthBtn.classList.remove('selectedFilter');
+    allBtn.classList.remove('selectedFilter');
+});
+thisMonthBtn.addEventListener('click', function () {
+    const today = getCurrentDate();
+    const oneMonthLater = new Date();
+    oneMonthLater.setDate(today.getDate() + 30);
+    selectedEndDate = oneMonthLater;
+    filterTasksByDateAndCategory(selectedEndDate, selectedCategory);
+    thisMonthBtn.classList.add('selectedFilter');
+    thisWeekBtn.classList.remove('selectedFilter');
+    todayBtn.classList.remove('selectedFilter');
+    allBtn.classList.remove('selectedFilter');
+});
+allBtn.addEventListener('click', function () {
+    // const allTaskContainerDivs = document.querySelectorAll('.taskContainerDiv');
+    selectedEndDate = null;
+    filterTasksByDateAndCategory(selectedEndDate, selectedCategory)
+    // allTaskContainerDivs.forEach((taskContainerDiv) => {
+    //     taskContainerDiv.style.display = 'block';
+    // });
+    allBtn.classList.add('selectedFilter');
+    thisWeekBtn.classList.remove('selectedFilter');
+    thisMonthBtn.classList.remove('selectedFilter');
+    todayBtn.classList.remove('selectedFilter');
+});
+function filterTasksByDateAndCategory(endDate, selectedCategory) {
+    // Loop through all taskContainerDiv elements and check their tasks' due dates
+    const allTaskContainerDivs = document.querySelectorAll('.taskContainerDiv');
+    allTaskContainerDivs.forEach((taskContainerDiv) => {
+        const taskDiv = taskContainerDiv.querySelector('.taskDiv'); // Get the taskDiv inside the current taskContainerDiv
+        const taskId = taskDiv.dataset.taskId;
+        const task = getTaskById(taskId); // Retrieve the task object by ID
+
+        // Check if the task's due date is between startDate and endDate
+        const taskDueDate = new Date(formatDateForInput(task.dueDate));
+        taskDueDate.setHours(0, 0, 0, 0);
+
+        // Check if the task's category matches the selected category
+        const taskCategory = task.category;
+
+        if ((endDate === null || taskDueDate <= endDate) && (selectedCategory === "All Inbox" || taskCategory.name === selectedCategory)) {
+            // Show the taskContainerDiv if its due date is between startDate and endDate, and category matches
+            taskContainerDiv.style.display = 'block';
+            console.log("display")
+            console.log("Due Date: " + taskDueDate)
+            console.log("Selected Date: " + endDate)
+            console.log("Task Category: " + taskCategory.name)
+            console.log("Selected Category: " + selectedCategory)
+        } else {
+            // Hide the taskContainerDiv if its due date is outside the range or category doesn't match
+            taskContainerDiv.style.display = 'none';
+            console.log("hide")
+            console.log("Due Date: " + taskDueDate)
+            console.log("Selected Date: " + endDate)
+            console.log("Task Category: " + taskCategory.name)
+            console.log("Selected Category: " + selectedCategory)
+        }
+    });
+
+    // Loop through the cat buttons and remove 'selectedFilter' class
+    let categoryButtons = document.querySelectorAll('.catBtns');
+    categoryButtons.forEach((catBtn) => {
+        catBtn.addEventListener('click', function() {
+            // Remove 'selectedFilter' class from all category buttons
+            categoryButtons.forEach((button) => {
+                button.classList.remove('selectedFilter');
+            });
+
+            // Add 'selectedFilter' class to the clicked button
+            this.classList.add('selectedFilter');
+
+            // Set selectedCategory to the clicked button's text content
+            selectedCategory = this.textContent;
+
+            // Apply the filter
+            filterTasksByDateAndCategory(selectedEndDate, selectedCategory);
+        });
+    });
+
+    //apply page title based on categry
+    document.getElementById("pageTitle").textContent = selectedCategory;
+}
+
