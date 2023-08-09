@@ -8,10 +8,10 @@ const tasksContainer = document.querySelector('.tasksContainer');
 let form = document.querySelector('form');
 let pageTitle = document.getElementById('pageTitle');
 const collapseBtn = document.getElementById('collapseBtn');
-const allBtn = document.getElementById('allBtn');
-const todayBtn = document.getElementById('todayBtn');
-const thisWeekBtn = document.getElementById('thisWeekBtn');
-const thisMonthBtn = document.getElementById('thisMonthBtn');
+// const allBtn = document.getElementById('allBtn');
+// const todayBtn = document.getElementById('todayBtn');
+// const thisWeekBtn = document.getElementById('thisWeekBtn');
+// const thisMonthBtn = document.getElementById('thisMonthBtn');
 const createTaskBtn = document.getElementById('createTask');
 const okTaskBtn = document.getElementById('okTaskBtn')
 const cancelTaskBtn = document.getElementById('cancelTaskBtn');
@@ -382,6 +382,7 @@ function initializeCategories() {
             filterTasksByDateAndCategory(selectedEndDate, selectedCategory)
         });
     }setDefaultCatEventListeners();
+    categoryBtnsEvListeners();
 
     return { categories, taskCounter };
 } let { categories, taskCounter } = initializeCategories();
@@ -426,13 +427,6 @@ okCatBtn.addEventListener('click', function(event) {
     
     newCategoryElement.appendChild(newButton);
     document.getElementById('categoriesList').appendChild(newCategoryElement);
-
-    // Add event listener to new cat button
-    newButton.addEventListener('click', function() {
-        selectedCategory = this.textContent
-        filterTasksByDateAndCategory(selectedEndDate, selectedCategory)
-        console.log(selectedEndDate, selectedCategory)
-    });
 
     initializeCategories();
 
@@ -539,58 +533,81 @@ form.addEventListener('keydown', function(event) {
     }
 });
 
-
-
 /////START HERE - filters
+function timelineBtnsEvListeners(){
+    todayBtn.addEventListener('click', function () {
+        const today = getCurrentDate();
+        selectedEndDate = today;
+        filterTasksByDateAndCategory(selectedEndDate, selectedCategory);
+        todayBtn.classList.add('selectedFilter');
+        thisWeekBtn.classList.remove('selectedFilter');
+        thisMonthBtn.classList.remove('selectedFilter');
+        allBtn.classList.remove('selectedFilter');
+    });
+    thisWeekBtn.addEventListener('click', function () {
+        const today = getCurrentDate();
+        const oneWeekLater = new Date();
+        oneWeekLater.setDate(today.getDate() + 7);
+        selectedEndDate = oneWeekLater;
+        filterTasksByDateAndCategory(selectedEndDate, selectedCategory);
+        thisWeekBtn.classList.add('selectedFilter');
+        todayBtn.classList.remove('selectedFilter');
+        thisMonthBtn.classList.remove('selectedFilter');
+        allBtn.classList.remove('selectedFilter');
+    });
+    thisMonthBtn.addEventListener('click', function () {
+        const today = getCurrentDate();
+        const oneMonthLater = new Date();
+        oneMonthLater.setDate(today.getDate() + 30);
+        selectedEndDate = oneMonthLater;
+        filterTasksByDateAndCategory(selectedEndDate, selectedCategory);
+        thisMonthBtn.classList.add('selectedFilter');
+        thisWeekBtn.classList.remove('selectedFilter');
+        todayBtn.classList.remove('selectedFilter');
+        allBtn.classList.remove('selectedFilter');
+    });
+    allBtn.addEventListener('click', function () {
+        // const allTaskContainerDivs = document.querySelectorAll('.taskContainerDiv');
+        selectedEndDate = null;
+        filterTasksByDateAndCategory(selectedEndDate, selectedCategory)
+        // allTaskContainerDivs.forEach((taskContainerDiv) => {
+        //     taskContainerDiv.style.display = 'block';
+        // });
+        allBtn.classList.add('selectedFilter');
+        thisWeekBtn.classList.remove('selectedFilter');
+        thisMonthBtn.classList.remove('selectedFilter');
+        todayBtn.classList.remove('selectedFilter');
+    });
+} timelineBtnsEvListeners();
 
-function getCurrentDate(){
+function categoryBtnsEvListeners(){
+    let categoryButtons = document.querySelectorAll('.catBtns');
+
+    categoryButtons.forEach((catBtn) => {
+        catBtn.addEventListener('click', function() {
+            // Remove 'selectedFilter' class from all category buttons
+            categoryButtons.forEach((button) => {
+                button.classList.remove('selectedFilter');
+            });
+    
+            // Add 'selectedFilter' class to the clicked button
+            this.classList.add('selectedFilter');
+    
+            // Set selectedCategory to the clicked button's text content
+            selectedCategory = this.textContent;
+    
+            // Apply the filter
+            filterTasksByDateAndCategory(selectedEndDate, selectedCategory);
+        });
+    }); 
+} categoryBtnsEvListeners();
+
+
+function getCurrentDate(){ //helper function to filter tasks
     const today = new Date();
     today.setHours(0, 0, 0, 0); // Set hours, minutes, seconds, and milliseconds to 0 to compare only the dates
     return today;
 }
-todayBtn.addEventListener('click', function () {
-    const today = getCurrentDate();
-    selectedEndDate = today;
-    filterTasksByDateAndCategory(selectedEndDate, selectedCategory);
-    todayBtn.classList.add('selectedFilter');
-    thisWeekBtn.classList.remove('selectedFilter');
-    thisMonthBtn.classList.remove('selectedFilter');
-    allBtn.classList.remove('selectedFilter');
-});
-thisWeekBtn.addEventListener('click', function () {
-    const today = getCurrentDate();
-    const oneWeekLater = new Date();
-    oneWeekLater.setDate(today.getDate() + 7);
-    selectedEndDate = oneWeekLater;
-    filterTasksByDateAndCategory(selectedEndDate, selectedCategory);
-    thisWeekBtn.classList.add('selectedFilter');
-    todayBtn.classList.remove('selectedFilter');
-    thisMonthBtn.classList.remove('selectedFilter');
-    allBtn.classList.remove('selectedFilter');
-});
-thisMonthBtn.addEventListener('click', function () {
-    const today = getCurrentDate();
-    const oneMonthLater = new Date();
-    oneMonthLater.setDate(today.getDate() + 30);
-    selectedEndDate = oneMonthLater;
-    filterTasksByDateAndCategory(selectedEndDate, selectedCategory);
-    thisMonthBtn.classList.add('selectedFilter');
-    thisWeekBtn.classList.remove('selectedFilter');
-    todayBtn.classList.remove('selectedFilter');
-    allBtn.classList.remove('selectedFilter');
-});
-allBtn.addEventListener('click', function () {
-    // const allTaskContainerDivs = document.querySelectorAll('.taskContainerDiv');
-    selectedEndDate = null;
-    filterTasksByDateAndCategory(selectedEndDate, selectedCategory)
-    // allTaskContainerDivs.forEach((taskContainerDiv) => {
-    //     taskContainerDiv.style.display = 'block';
-    // });
-    allBtn.classList.add('selectedFilter');
-    thisWeekBtn.classList.remove('selectedFilter');
-    thisMonthBtn.classList.remove('selectedFilter');
-    todayBtn.classList.remove('selectedFilter');
-});
 function filterTasksByDateAndCategory(endDate, selectedCategory) {
     // Loop through all taskContainerDiv elements and check their tasks' due dates
     const allTaskContainerDivs = document.querySelectorAll('.taskContainerDiv');
@@ -625,27 +642,7 @@ function filterTasksByDateAndCategory(endDate, selectedCategory) {
         }
     });
 
-    // Loop through the cat buttons and remove 'selectedFilter' class
-    let categoryButtons = document.querySelectorAll('.catBtns');
-    categoryButtons.forEach((catBtn) => {
-        catBtn.addEventListener('click', function() {
-            // Remove 'selectedFilter' class from all category buttons
-            categoryButtons.forEach((button) => {
-                button.classList.remove('selectedFilter');
-            });
-
-            // Add 'selectedFilter' class to the clicked button
-            this.classList.add('selectedFilter');
-
-            // Set selectedCategory to the clicked button's text content
-            selectedCategory = this.textContent;
-
-            // Apply the filter
-            filterTasksByDateAndCategory(selectedEndDate, selectedCategory);
-        });
-    });
-
     //apply page title based on categry
-    document.getElementById("pageTitle").textContent = selectedCategory;
+    pageTitle.textContent = selectedCategory;
 }
 
