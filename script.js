@@ -457,7 +457,7 @@ function isDarkColor(color) {
     // Calculate brightness on a scale from 0 to 255
     let brightness = Math.round(((rgb.r * 299) + (rgb.g * 587) + (rgb.b * 114)) / 1000);
     
-    return brightness < 125; // Return true if the color is dark
+    return brightness < 170; // Return true if the color is dark
 }
 
 // ---------------------------- FILTERS & DISPLAY ----------------------------
@@ -596,6 +596,7 @@ function filterTasksByDateAndCategory(endDate, selectedCategory) {
     //apply page title based on categry
     pageTitle.textContent = selectedCategory;
 }
+
 // Nav Collapse & Expand
 collapseBtn.addEventListener('click', function() {
     const navDisplayStyle = window.getComputedStyle(nav).display;
@@ -660,3 +661,10 @@ form.addEventListener('keydown', function(event) {
     }
 });
 
+// Workin Progress
+
+function editCategory(){
+    pageTitle.addEventListener('click', function(){
+        console.log(pageTitle.textContent);
+    });
+} editCategory();
