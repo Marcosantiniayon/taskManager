@@ -105,7 +105,7 @@ li{
     #eventsBtn{background-color: #c6bb46;}
     #programmingBtn{background-color: #23d86e;}
 .selectedFilter{
-    border: 2px solid;
+    border: 3px solid;
     border-color: rgb(255, 255, 255);
     background-color: rgb(224, 220, 241);
     transform: scale(1.05)
@@ -125,8 +125,17 @@ li{
     justify-content: space-between;
     height: 60px;
 }
+.titleNsort-left{
+    display: flex;
+}
 #pageTitle{
-    justify-self: baseline;
+    padding: 6px 16px;
+    border-radius: 24px;
+    margin-right: 12px;
+}
+#pageTimeline{
+    align-self: center;
+    font-style: italic;
 }
 #sortBtn{
     justify-self: flex-end;

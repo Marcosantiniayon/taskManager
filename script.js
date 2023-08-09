@@ -8,10 +8,6 @@ const tasksContainer = document.querySelector('.tasksContainer');
 let form = document.querySelector('form');
 let pageTitle = document.getElementById('pageTitle');
 const collapseBtn = document.getElementById('collapseBtn');
-// const allBtn = document.getElementById('allBtn');
-// const todayBtn = document.getElementById('todayBtn');
-// const thisWeekBtn = document.getElementById('thisWeekBtn');
-// const thisMonthBtn = document.getElementById('thisMonthBtn');
 const createTaskBtn = document.getElementById('createTask');
 const okTaskBtn = document.getElementById('okTaskBtn')
 const cancelTaskBtn = document.getElementById('cancelTaskBtn');
@@ -23,14 +19,13 @@ const inboxBtn = document.getElementById('inboxBtn')
 const responsibilitiesBtn = document.getElementById('responsibilitiesBtn')
 const eventsBtn = document.getElementById('eventsBtn')
 const programmingBtn = document.getElementById('programmingBtn')
-let currentCategoryBtn = null;
 let titleInput= document.getElementById("title")
 let categorySelect = document.getElementById("category");
 let dueDateSelect = document.getElementById("dueDate");
 let prioritySelect = document.getElementById("priority");
 let descriptionInput = document.getElementById("description");
 let selectedCategory = "All Inbox";
-let selectedEndDate = null;
+let selectedEndDate = getCurrentDate();
 
 // ---------------------------- TASKS ----------------------------
 class Task {
@@ -130,8 +125,6 @@ function addTask(title, category, categoryObject, dueDate, importance, descripti
         taskDiv.id = taskId;
         taskDiv.dataset.taskId = taskId;
 
-        console.log('new task,' + 'title: ' + title + ',id: ' + taskId + ', ' + taskDiv.id);
-
         taskDiv.addEventListener('click', function() {
             openTaskModalForEditing(newTask);
         });
@@ -204,6 +197,9 @@ function addTask(title, category, categoryObject, dueDate, importance, descripti
         taskContainerDiv.appendChild(taskBigDiv);taskContainerDiv.appendChild(linebreak);tasksContainer.appendChild(taskContainerDiv);    
     } addTaskDiv(taskId, title, category, dueDate, taskCounter, prioritySelect);
     
+    // selectedCategory = category;
+
+    filterTasksByDateAndCategory(selectedEndDate, selectedCategory);
 }
 function editTask(title, categoryObject, dueDate, importance, description){
     // Editing Task Object
@@ -325,7 +321,7 @@ titleInput.addEventListener('input', function() {
     this.classList.remove('error');
 });
 
-// ---------------------------- CATEGORIES & TIMELINES FILTER  ----------------------------
+// ---------------------------- CATEGORIES ----------------------------
 class Category {
     constructor(name, color) {
         this.name = name;
@@ -382,7 +378,6 @@ function initializeCategories() {
             filterTasksByDateAndCategory(selectedEndDate, selectedCategory)
         });
     }setDefaultCatEventListeners();
-    categoryBtnsEvListeners();
 
     return { categories, taskCounter };
 } let { categories, taskCounter } = initializeCategories();
@@ -429,6 +424,7 @@ okCatBtn.addEventListener('click', function(event) {
     document.getElementById('categoriesList').appendChild(newCategoryElement);
 
     initializeCategories();
+    filterBtnsEvListeners();
 
     catModal.style.display = "none";
 });
@@ -464,85 +460,31 @@ function isDarkColor(color) {
     return brightness < 125; // Return true if the color is dark
 }
 
-// ---------------------------- WEBPAGE ----------------------------
+// ---------------------------- FILTERS & DISPLAY ----------------------------
 
-// Nav Collapse & Expand
-collapseBtn.addEventListener('click', function() {
-    const navDisplayStyle = window.getComputedStyle(nav).display;
-    const screenWidth = window.innerWidth;
-    const isSmallScreen = screenWidth < 750;
-  
-    if (isSmallScreen) {
-      if (navDisplayStyle === 'none') {
-        nav.style.display = 'block';
-        nav.style.zIndex = '2';
-        content.style.gridColumn = '1 / 3';
-        content.classList.add('overlay');
-        collapseBtn.src = './images/collapse3.png';
-      //   collapseBtn.style.marginLeft = '140px';
-      } else {
-        nav.style.display = 'none';
-        nav.style.zIndex = '';
-        content.style.gridColumn = '1 / -1';
-        content.classList.remove('overlay');
-        console.log('expand');
-        collapseBtn.src = './images/expand3.png';
-      //   collapseBtn.style.marginLeft = '12px';
-      }
-    } else {
-      if (navDisplayStyle === 'none') {
-        nav.style.display = 'block';
-        nav.style.zIndex = '';
-        content.style.gridColumn = '2/3';
-        content.classList.remove('overlay');
-        console.log('collapse');
-        collapseBtn.src = './images/collapse3.png';
-      //   collapseBtn.style.marginLeft = '240px';
-      } else {
-        nav.style.display = 'none';
-        nav.style.zIndex = '';
-        content.style.gridColumn = '1 / -1';
-        content.classList.remove('overlay');
-        console.log('expand');
-        collapseBtn.src = './images/expand3.png';
-      //   collapseBtn.style.marginLeft = '12px';
-      }
+function filterBtnsEvListeners(){
+    const allBtn = document.getElementById('allBtn');
+    const todayBtn = document.getElementById('todayBtn');
+    const thisWeekBtn = document.getElementById('thisWeekBtn');
+    const thisMonthBtn = document.getElementById('thisMonthBtn');
+    const pageTimeline = document.getElementById('pageTimeline');
+
+    function removeFilters(){
+        thisWeekBtn.classList.remove('selectedFilter');
+        thisMonthBtn.classList.remove('selectedFilter');
+        allBtn.classList.remove('selectedFilter');
+        todayBtn.classList.remove('selectedFilter');
     }
-  });
 
-// Closing Modal
-span.onclick = function() {
-    modal.style.display = "none";
-    delete titleInput.dataset.editingTaskId;
-}; spanCatModal.onclick = function() {
-    catModal.style.display = "none";
-}     
-window.onclick = function(event) { // Closes Modal when clicking outside of it 
-    if (event.target == modal) {
-      modal.style.display = "none";
-    } else if(event.target == catModal) {
-        catModal.style.display = "none";
-      }
-}
-
-// Enter = Click
-form.addEventListener('keydown', function(event) {
-    if (event.key === "Enter") {
-        event.preventDefault(); 
-        okTaskBtn.click(); 
-    }
-});
-
-/////START HERE - filters
-function timelineBtnsEvListeners(){
+    //Timeline buttons event listeners
     todayBtn.addEventListener('click', function () {
         const today = getCurrentDate();
         selectedEndDate = today;
         filterTasksByDateAndCategory(selectedEndDate, selectedCategory);
+        removeFilters();
         todayBtn.classList.add('selectedFilter');
-        thisWeekBtn.classList.remove('selectedFilter');
-        thisMonthBtn.classList.remove('selectedFilter');
-        allBtn.classList.remove('selectedFilter');
+        pageTimeline.textContent = this.textContent;
+
     });
     thisWeekBtn.addEventListener('click', function () {
         const today = getCurrentDate();
@@ -550,10 +492,9 @@ function timelineBtnsEvListeners(){
         oneWeekLater.setDate(today.getDate() + 7);
         selectedEndDate = oneWeekLater;
         filterTasksByDateAndCategory(selectedEndDate, selectedCategory);
+        removeFilters();
         thisWeekBtn.classList.add('selectedFilter');
-        todayBtn.classList.remove('selectedFilter');
-        thisMonthBtn.classList.remove('selectedFilter');
-        allBtn.classList.remove('selectedFilter');
+        pageTimeline.textContent = this.textContent;
     });
     thisMonthBtn.addEventListener('click', function () {
         const today = getCurrentDate();
@@ -561,28 +502,22 @@ function timelineBtnsEvListeners(){
         oneMonthLater.setDate(today.getDate() + 30);
         selectedEndDate = oneMonthLater;
         filterTasksByDateAndCategory(selectedEndDate, selectedCategory);
+        removeFilters();
         thisMonthBtn.classList.add('selectedFilter');
-        thisWeekBtn.classList.remove('selectedFilter');
-        todayBtn.classList.remove('selectedFilter');
-        allBtn.classList.remove('selectedFilter');
+        pageTimeline.textContent = this.textContent;
     });
     allBtn.addEventListener('click', function () {
-        // const allTaskContainerDivs = document.querySelectorAll('.taskContainerDiv');
         selectedEndDate = null;
         filterTasksByDateAndCategory(selectedEndDate, selectedCategory)
-        // allTaskContainerDivs.forEach((taskContainerDiv) => {
-        //     taskContainerDiv.style.display = 'block';
-        // });
+        removeFilters();
         allBtn.classList.add('selectedFilter');
-        thisWeekBtn.classList.remove('selectedFilter');
-        thisMonthBtn.classList.remove('selectedFilter');
-        todayBtn.classList.remove('selectedFilter');
+        pageTimeline.textContent = this.textContent;
+        allBtn.classList.add('selectedFilter');
+
     });
-} timelineBtnsEvListeners();
 
-function categoryBtnsEvListeners(){
+    //Category buttons event listeners
     let categoryButtons = document.querySelectorAll('.catBtns');
-
     categoryButtons.forEach((catBtn) => {
         catBtn.addEventListener('click', function() {
             // Remove 'selectedFilter' class from all category buttons
@@ -596,13 +531,29 @@ function categoryBtnsEvListeners(){
             // Set selectedCategory to the clicked button's text content
             selectedCategory = this.textContent;
     
+            // Set styling to page title
+            filterPageChanges(this);
+
             // Apply the filter
             filterTasksByDateAndCategory(selectedEndDate, selectedCategory);
         });
     }); 
-} categoryBtnsEvListeners();
 
-
+    function initializePageFilters(){
+        let currentCategory = document.getElementById('inboxBtn');
+        currentCategory.classList.add('selectedFilter')
+        filterPageChanges(currentCategory);
+        let currentTimeline = document.getElementById('allBtn');
+        currentTimeline.classList.add('selectedFilter')
+    }initializePageFilters();
+    function filterPageChanges(currentCategory){
+        let computedStyle = window.getComputedStyle(currentCategory);
+        let bgColor = computedStyle.backgroundColor;
+        let fontColor = computedStyle.color;
+        pageTitle.style.backgroundColor = bgColor;
+        pageTitle.style.color = fontColor;
+    }
+} filterBtnsEvListeners();
 function getCurrentDate(){ //helper function to filter tasks
     const today = new Date();
     today.setHours(0, 0, 0, 0); // Set hours, minutes, seconds, and milliseconds to 0 to compare only the dates
@@ -645,4 +596,67 @@ function filterTasksByDateAndCategory(endDate, selectedCategory) {
     //apply page title based on categry
     pageTitle.textContent = selectedCategory;
 }
+// Nav Collapse & Expand
+collapseBtn.addEventListener('click', function() {
+    const navDisplayStyle = window.getComputedStyle(nav).display;
+    const screenWidth = window.innerWidth;
+    const isSmallScreen = screenWidth < 750;
+  
+    if (isSmallScreen) {
+      if (navDisplayStyle === 'none') {
+        nav.style.display = 'block';
+        nav.style.zIndex = '2';
+        content.style.gridColumn = '1 / 3';
+        content.classList.add('overlay');
+        collapseBtn.src = './images/collapse3.png';
+      //   collapseBtn.style.marginLeft = '140px';
+      } else {
+        nav.style.display = 'none';
+        nav.style.zIndex = '';
+        content.style.gridColumn = '1 / -1';
+        content.classList.remove('overlay');
+        console.log('expand');
+        collapseBtn.src = './images/expand3.png';
+      //   collapseBtn.style.marginLeft = '12px';
+      }
+    } else {
+      if (navDisplayStyle === 'none') {
+        nav.style.display = 'block';
+        nav.style.zIndex = '';
+        content.style.gridColumn = '2/3';
+        content.classList.remove('overlay');
+        collapseBtn.src = './images/collapse3.png';
+      //   collapseBtn.style.marginLeft = '240px';
+      } else {
+        nav.style.display = 'none';
+        nav.style.zIndex = '';
+        content.style.gridColumn = '1 / -1';
+        content.classList.remove('overlay');
+        console.log('expand');
+        collapseBtn.src = './images/expand3.png';
+      //   collapseBtn.style.marginLeft = '12px';
+      }
+    }
+  });
+// Closing Modal
+span.onclick = function() {
+    modal.style.display = "none";
+    delete titleInput.dataset.editingTaskId;
+}; spanCatModal.onclick = function() {
+    catModal.style.display = "none";
+}     
+window.onclick = function(event) { // Closes Modal when clicking outside of it 
+    if (event.target == modal) {
+      modal.style.display = "none";
+    } else if(event.target == catModal) {
+        catModal.style.display = "none";
+      }
+}
+// Enter = Click
+form.addEventListener('keydown', function(event) {
+    if (event.key === "Enter") {
+        event.preventDefault(); 
+        okTaskBtn.click(); 
+    }
+});
 
