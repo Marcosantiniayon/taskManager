@@ -15,10 +15,10 @@ const deleteBtnModal = document.getElementById('delete');
 const newCatBtn = document.getElementById('newCatBtn');
 const okCatBtn = document.getElementById('okCatBtn')
 const cancelCatBtn = document.getElementById('cancelCatBtn')
-const inboxBtn = document.getElementById('inboxBtn')
-const responsibilitiesBtn = document.getElementById('responsibilitiesBtn')
-const eventsBtn = document.getElementById('eventsBtn')
-const programmingBtn = document.getElementById('programmingBtn')
+// const inboxBtn = document.getElementById('inboxBtn')
+// const responsibilitiesBtn = document.getElementById('responsibilitiesBtn')
+// const eventsBtn = document.getElementById('eventsBtn')
+// const programmingBtn = document.getElementById('programmingBtn')
 let titleInput= document.getElementById("title")
 let categorySelect = document.getElementById("category");
 let dueDateSelect = document.getElementById("dueDate");
@@ -26,6 +26,10 @@ let prioritySelect = document.getElementById("priority");
 let descriptionInput = document.getElementById("description");
 let selectedCategory = "All Inbox";
 let selectedEndDate = getCurrentDate();
+let categoryButtons = document.querySelectorAll('.catBtns');
+let lastCatId = Math.max(...Array.from(categoryButtons).map(btn => parseInt(btn.dataset.catId)));
+let taskCounter = 0;
+
 
 // ---------------------------- TASKS ----------------------------
 class Task {
@@ -63,7 +67,7 @@ createTaskBtn.addEventListener('click', function() { // Brings up new task modal
     modal.style.display = "block";
 });
 function openTaskModalForEditing(task){
-    console.log(task);
+console.log(task);
 // Set the form inputs to the task's values
 titleInput.value = task.title;
 categorySelect.value = task.category.name;
@@ -109,6 +113,9 @@ okTaskBtn.addEventListener('click', function(event) { //Calls addTask or editTas
 function addTask(title, category, categoryObject, dueDate, importance, description){
     // Create Task Object 
     let newTask = new Task(taskCounter, title, categoryObject, dueDate, importance, description);
+
+    taskCounter++;
+    console.log(categoryObject);
     categoryObject.addTaskToCat(newTask);
     let taskId = newTask.id
     
@@ -323,64 +330,48 @@ titleInput.addEventListener('input', function() {
 
 // ---------------------------- CATEGORIES ----------------------------
 class Category {
-    constructor(name, color) {
+    constructor(name, color, catId = null) {
         this.name = name;
         this.color = color;
         this.tasks = [];
+        this.catId = catId || ++lastCatId;
     }
-
     addTaskToCat(task) {
         this.tasks.push(task);
         // Set the task's ID to match the correct counter value
         task.id = taskCounter;
         taskCounter++;
     }
-
     removeTaskFromCat(taskId) {
         this.tasks = this.tasks.filter(task => task.id !== taskId);
     }
 }
-function initializeCategories() {
-    // Initialize default categories
+let defaultCategories = initializeDefaultCategories();
+let categories = [...defaultCategories]; 
+function initializeDefaultCategories() {
     const categoryButtons = document.querySelectorAll('.categoriesDiv button');
-    let categories = Array.from(categoryButtons).map(button => new Category(button.textContent.trim()));
+    let categories = Array.from(categoryButtons).map(button => {
+        let catId = parseInt(button.dataset.catId);
+        if (catId > lastCatId) lastCatId = catId;
+        return new Category(button.textContent.trim(), null, catId); // Passing catId to the constructor
+    });
 
-    let taskCounter = categories.reduce((count, category) => count + category.tasks.length, 0);
-
+    return categories;
+} 
+function updateCategoryDropdown() {
     // Clear any existing options
     let categorySelect = document.getElementById('category');
     while (categorySelect.firstChild) {
         categorySelect.removeChild(categorySelect.firstChild);
     }
-    // Add new options for each categroy
+    // Add new options based on the categories array
     categories.forEach(category => {
         let option = document.createElement('option');
         option.value = category.name;
         option.textContent = category.name;
         categorySelect.appendChild(option);
     });
-
-    function setDefaultCatEventListeners(){
-        inboxBtn.addEventListener('click', function() {
-            selectedCategory = "All Inbox";
-            filterTasksByDateAndCategory(selectedEndDate, selectedCategory)
-        });
-        responsibilitiesBtn.addEventListener('click', function() {
-            selectedCategory = this.textContent
-            filterTasksByDateAndCategory(selectedEndDate, selectedCategory)
-        });
-        eventsBtn.addEventListener('click', function() {
-            selectedCategory = this.textContent
-            filterTasksByDateAndCategory(selectedEndDate, selectedCategory)
-        });
-        programmingBtn.addEventListener('click', function() {
-            selectedCategory = this.textContent
-            filterTasksByDateAndCategory(selectedEndDate, selectedCategory)
-        });
-    }setDefaultCatEventListeners();
-
-    return { categories, taskCounter };
-} let { categories, taskCounter } = initializeCategories();
+}
 function getTaskById(taskId) {
     // Loop through each category
     for (const category of categories) {
@@ -413,6 +404,7 @@ okCatBtn.addEventListener('click', function(event) {
     newButton.innerText = catTitle;
     newButton.classList.add('catBtns');
     newButton.style.backgroundColor = catColor;
+    newButton.dataset.catId = newCategory.catId;
 
     if (isDarkColor(catColor)) {
         newButton.style.color = 'white';
@@ -423,7 +415,7 @@ okCatBtn.addEventListener('click', function(event) {
     newCategoryElement.appendChild(newButton);
     document.getElementById('categoriesList').appendChild(newCategoryElement);
 
-    initializeCategories();
+    updateCategoryDropdown();
     filterBtnsEvListeners();
 
     catModal.style.display = "none";
@@ -433,6 +425,7 @@ cancelCatBtn.addEventListener('click', function() {
 });
 //color picker
 const colorPicker = document.getElementById('colorPicker');
+colorPicker.value ='#8a59b9';
 const colorDisplay = document.getElementById('colorDisplay');
 colorDisplay.addEventListener('click', function() {
     colorPicker.click();
@@ -577,19 +570,9 @@ function filterTasksByDateAndCategory(endDate, selectedCategory) {
         if ((endDate === null || taskDueDate <= endDate) && (selectedCategory === "All Inbox" || taskCategory.name === selectedCategory)) {
             // Show the taskContainerDiv if its due date is between startDate and endDate, and category matches
             taskContainerDiv.style.display = 'block';
-            console.log("display")
-            console.log("Due Date: " + taskDueDate)
-            console.log("Selected Date: " + endDate)
-            console.log("Task Category: " + taskCategory.name)
-            console.log("Selected Category: " + selectedCategory)
         } else {
             // Hide the taskContainerDiv if its due date is outside the range or category doesn't match
             taskContainerDiv.style.display = 'none';
-            console.log("hide")
-            console.log("Due Date: " + taskDueDate)
-            console.log("Selected Date: " + endDate)
-            console.log("Task Category: " + taskCategory.name)
-            console.log("Selected Category: " + selectedCategory)
         }
     });
 
@@ -665,6 +648,25 @@ form.addEventListener('keydown', function(event) {
 
 function editCategory(){
     pageTitle.addEventListener('click', function(){
-        console.log(pageTitle.textContent);
+        openCatModalForEditing(pageTitle);
     });
+    function openCatModalForEditing(){
+        console.log(pageTitle.textContent);
+        console.log(pageTitle.style.backgroundColor);
+
+        
+        let catTitle = document.getElementById('catTitle');
+        let colorDisplay = document.getElementById('colorDisplay');
+        // Set the form inputs to the task's values
+        catTitle.value = pageTitle.textContent;
+        colorDisplay.style.backgroundColor = pageTitle.style.backgroundColor;
+
+        
+        // Set the data attribute on the title input to the task's id so we know which task is being edited
+        // titleInput.dataset.editingTaskId = task.id;
+        
+        // Show the modal
+        catModal.style.display = "block";
+    }
 } editCategory();
+
