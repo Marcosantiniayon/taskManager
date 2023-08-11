@@ -383,38 +383,95 @@ function getTaskById(taskId) {
     }
     return null; // Return null if no task with the given ID is found
   }
+//Checks if we are edditing or creating a new cat  
+let currentMode = null;
+let catID;
+
 newCatBtn.addEventListener('click', function() {
-   // Show the modal
+   currentMode = 'new';
    catModal.style.display = "block";
 });
+function editCategory(){
+    pageTitle.addEventListener('click', function(){
+        catID = parseInt(this.dataset.catId);
+        currentMode = 'edit';
+        openCatModalForEditing(pageTitle, catID);
+    });
+    function openCatModalForEditing(pageTitle, catID){
+
+        console.log('Editing category with ID:', catID);
+        console.log(pageTitle.textContent);
+        console.log(pageTitle.style.backgroundColor);
+
+        
+        let catTitle = document.getElementById('catTitle');
+        let colorDisplay = document.getElementById('colorDisplay');
+
+        // Set the form inputs to the task's values
+        catTitle.value = pageTitle.textContent;
+        colorDisplay.style.backgroundColor = pageTitle.style.backgroundColor;
+        
+        // Show the modal
+        catModal.style.display = "block";
+    }
+} editCategory();
 okCatBtn.addEventListener('click', function(event) {
     event.preventDefault(); // Prevent the form from submitting
 
-    // Get the category name and color from the form inputs
-    let catTitle = document.getElementById('catTitle').value;
-    let catColor = document.getElementById('colorPicker').value;
+    if (currentMode === 'new') {
+        // Get the category name and color from the form inputs
+        let catTitle = document.getElementById('catTitle').value;
+        let catColor = document.getElementById('colorPicker').value;
 
-    // Create a new category instance
-    let newCategory = new Category(catTitle, catColor);
-    categories.push(newCategory);
+        // Create a new category instance
+        let newCategory = new Category(catTitle, catColor);
+        categories.push(newCategory);
 
-    // Create a new list item
-    let newCategoryElement = document.createElement('li');
-    let newButton = document.createElement('button');
-    newButton.innerText = catTitle;
-    newButton.classList.add('catBtns');
-    newButton.style.backgroundColor = catColor;
-    newButton.dataset.catId = newCategory.catId;
+        // Create a new list item
+        let newCategoryElement = document.createElement('li');
+        let newButton = document.createElement('button');
+        newButton.innerText = catTitle;
+        newButton.classList.add('catBtns');
+        newButton.style.backgroundColor = catColor;
+        newButton.dataset.catId = newCategory.catId;
 
-    if (isDarkColor(catColor)) {
-        newButton.style.color = 'white';
-    } else {
-        newButton.style.color = 'black';
-    }
-    
+        if (isDarkColor(catColor)) {
+            newButton.style.color = 'white';
+        } else {
+            newButton.style.color = 'black';
+        }
+        
     newCategoryElement.appendChild(newButton);
     document.getElementById('categoriesList').appendChild(newCategoryElement);
-
+    } else if (currentMode === 'edit') {
+        //Retrieve the category from the categories array based on the catID
+        if (typeof catID !== "number") {
+            console.error('catId is not a number at [description of the code location]', catID);
+        }
+        let editingCategory = categories.find(cat => cat.catId === catID);
+    
+        //Update the category values
+        if (editingCategory) {
+            editingCategory.name = document.getElementById('catTitle').value;
+            editingCategory.color = document.getElementById('colorPicker').value;
+    
+            //Update the UI element (button in this case) representing the category
+            let associatedButton = document.querySelector(`button[data-cat-id="${catID}"]`);
+            if (associatedButton) {
+                associatedButton.innerText = editingCategory.name;
+                associatedButton.style.backgroundColor = editingCategory.color;
+    
+                //Check color brightness to adjust text color for better visibility
+                if (isDarkColor(editingCategory.color)) {
+                    associatedButton.style.color = 'white';
+                } else {
+                    associatedButton.style.color = 'black';
+                }
+            }
+        } else {
+            console.error('Could not find category with ID:', catID);
+        }
+    }
     updateCategoryDropdown();
     filterBtnsEvListeners();
 
@@ -523,12 +580,12 @@ function filterBtnsEvListeners(){
     
             // Set selectedCategory to the clicked button's text content
             selectedCategory = this.textContent;
+            catID = parseInt(this.dataset.catId);
     
             // Set styling to page title
             filterPageChanges(this);
-
             // Apply the filter
-            filterTasksByDateAndCategory(selectedEndDate, selectedCategory);
+            filterTasksByDateAndCategory(selectedEndDate, selectedCategory, catID);
         });
     }); 
 
@@ -552,7 +609,7 @@ function getCurrentDate(){ //helper function to filter tasks
     today.setHours(0, 0, 0, 0); // Set hours, minutes, seconds, and milliseconds to 0 to compare only the dates
     return today;
 }
-function filterTasksByDateAndCategory(endDate, selectedCategory) {
+function filterTasksByDateAndCategory(endDate, selectedCategory, catID) {
     // Loop through all taskContainerDiv elements and check their tasks' due dates
     const allTaskContainerDivs = document.querySelectorAll('.taskContainerDiv');
     allTaskContainerDivs.forEach((taskContainerDiv) => {
@@ -578,6 +635,7 @@ function filterTasksByDateAndCategory(endDate, selectedCategory) {
 
     //apply page title based on categry
     pageTitle.textContent = selectedCategory;
+    pageTitle.dataset.catId = catID;
 }
 
 // Nav Collapse & Expand
@@ -646,27 +704,5 @@ form.addEventListener('keydown', function(event) {
 
 // Workin Progress
 
-function editCategory(){
-    pageTitle.addEventListener('click', function(){
-        openCatModalForEditing(pageTitle);
-    });
-    function openCatModalForEditing(){
-        console.log(pageTitle.textContent);
-        console.log(pageTitle.style.backgroundColor);
 
-        
-        let catTitle = document.getElementById('catTitle');
-        let colorDisplay = document.getElementById('colorDisplay');
-        // Set the form inputs to the task's values
-        catTitle.value = pageTitle.textContent;
-        colorDisplay.style.backgroundColor = pageTitle.style.backgroundColor;
-
-        
-        // Set the data attribute on the title input to the task's id so we know which task is being edited
-        // titleInput.dataset.editingTaskId = task.id;
-        
-        // Show the modal
-        catModal.style.display = "block";
-    }
-} editCategory();
 
