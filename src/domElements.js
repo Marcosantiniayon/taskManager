@@ -1,5 +1,5 @@
 import { Task, taskCounter } from "./taskFunctions";
-import { getCurrentDate, formatDateForInput } from "./helperFunctions";
+import { getCurrentDate, formatDateForInput, isDarkColor, rgbToHex } from "./helperFunctions";
 import { filterPageChanges, removeFilters, filterTasksByDateAndCategory } from "./displayFunctions";
 import { categories, catID, currentMode } from "./categoryFunctions";
 
@@ -347,6 +347,7 @@ export function initializeCatEventListeners(){
        document.getElementById('categoriesList').appendChild(newCategoryElement);
        } else if (currentMode === 'edit') {
            //Retrieve the category from the categories array based on the catID
+           console.log(catID);
            if (typeof catID !== "number") {
                console.error('catId is not a number at [description of the code location]', catID);
            }
@@ -366,6 +367,7 @@ export function initializeCatEventListeners(){
                    //Check color brightness to adjust text color for better visibility
                    if (isDarkColor(editingCategory.color)) {
                        associatedButton.style.color = 'white';
+                       pageTitle.style.color = 'white';
                    } else {
                        associatedButton.style.color = 'black';
                    }
@@ -373,9 +375,13 @@ export function initializeCatEventListeners(){
            } else {
                console.error('Could not find category with ID:', catID);
            }
+
+           //Update page title
+           pageTitle.innerHTML = catTitle.value;
+           pageTitle.style.backgroundColor = colorPicker.value;
        }
        updateCategoryDropdown();
-       filterBtnsEvListeners();
+      //  filterBtnsEvListeners();
    
        catModal.style.display = "none";
    
@@ -397,15 +403,14 @@ export function initializeCatEventListeners(){
    cancelCatBtn.addEventListener('click', function() {    
    });
    pageTitle.addEventListener('click', function(){
+    console.log(this.dataset.catId);
        catID = parseInt(this.dataset.catId);
        currentMode = 'edit';
        openCatModalForEditing(pageTitle, catID);
        function openCatModalForEditing(pageTitle, catID){
    
            console.log('Editing category with ID:', catID);
-           console.log(pageTitle.textContent);
            console.log(pageTitle.style.backgroundColor);
-       
            
            let catTitle = document.getElementById('catTitle');
            let colorDisplay = document.getElementById('colorDisplay');
@@ -418,9 +423,18 @@ export function initializeCatEventListeners(){
            catModal.style.display = "block";
        }
    });
-   colorPicker.value ='#8a59b9';
    colorDisplay.addEventListener('click', function() {
-      colorPicker.click();
+    console.log(colorDisplay.style.backgroundColor);
+
+    // Get the RGB color & convert to hex. Then set the colorPicker value to the hex
+    let rgbColor = colorDisplay.style.backgroundColor;
+    let hexColor = rgbToHex(rgbColor);
+    colorDisplay.style.background = hexColor;
+    colorPicker.value = hexColor;
+
+    
+    colorPicker.click();
+      
     });
    colorPicker.addEventListener('input', function() {     // When you pick a color, update the display
       colorDisplay.style.background = colorPicker.value;
