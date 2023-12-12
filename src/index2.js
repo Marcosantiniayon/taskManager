@@ -1,244 +1,352 @@
+// Need to figure out where these go
+let selectedCategory = "All Inbox";
+let selectedEndDate = getCurrentDate();
+let taskCounter = 0;
 
-document.addEventListener('DOMContentLoaded', function() {
-    // All our application logic will reside here
+let lastCatId = Math.max(...Array.from(categoryButtons).map(btn => parseInt(btn.dataset.catId)));
 
-    // Initialize all our classes and methods here
-    const taskManager = new TaskManager();
-    const categoryManager = new CategoryManager();
-    const ui = new UI();
 
-    // Add sample task and categories
-    taskManager.addTask(new Task(1, "Sample Task", "This is a sample task description", "2023-08-18", categoryManager.getCategoryById(1)));
-    categoryManager.addCategory("Sample Category");
+import { 
+    content, nav,modal,span,catModal,spanCatModal,tasksContainer,form,pageTitle,collapseBtn,createTaskBtn,okTaskBtn,cancelTaskBtn,deleteBtnModal,newCatBtn,okCatBtn,cancelCatBtn,inboxBtn,responsibilitiesBtn,eventsBtn,programmingBtn,titleInput,categorySelect,dueDateSelect,prioritySelect,descriptionInput,categoryButtons,
+  } from './domElements';
+// import { Task } from './task';
+import {initializeTaskCreation, addTask, editTask, initializeModalDeleteBtn} from'./taskFunctions';
 
-    // Setup event listeners and other initializations
-    ui.setupUI();
+// const task = new Task(id, title, categoryObject, dueDate, priority, description);
+//Task Functions
+initializeTaskCreation();
+// openTaskModalForEditing(task);
+addTask(title, category, categoryObject, dueDate, importance, description);
+editTask(title, categoryObject, dueDate, importance, description);
+initializeModalDeleteBtn();
+deleteTask(taskId);
 
+function formatDateForInput(dateString) {
+    const date = new Date(dateString);
+    const offset = date.getTimezoneOffset(); // Get the timezone offset in minutes
+    date.setMinutes(date.getMinutes() + offset); // Adjust the date by the timezone offset
+    const mm = String(date.getMonth() + 1).padStart(2, '0');
+    const dd = String(date.getDate()).padStart(2, '0');
+    const yyyy = date.getFullYear();
+    return `${mm}/${dd}/${yyyy}`;
+  }
+
+titleInput.addEventListener('input', function() {
+    // Remove the error class when the title input value changes
+    this.classList.remove('error');
 });
 
-
-class Task {
-    constructor(id, title, description, dueDate, category) {
-        this.id = id;
-        this.title = title;
-        this.description = description;
-        this.dueDate = dueDate;
-        this.category = category;
-    }
-}
-
-class TaskManager {
-    constructor() {
-        this.tasks = [];
-    }
-
-    addTask(task) {
-        this.tasks.push(task);
-    }
-
-    getTaskById(id) {
-        return this.tasks.find(task => task.id === id);
-    }
-
-    editTask(id, newDetails) {
-        const task = this.getTaskById(id);
-        if (!task) return;
-
-        // Assuming newDetails is an object with properties to overwrite
-        // E.g., newDetails might look like: { title: 'New Title', dueDate: '2023-08-18' }
-        for (let key in newDetails) {
-            if (task.hasOwnProperty(key)) {
-                task[key] = newDetails[key];
-            }
-        }
-    }
-
-    deleteTask(id) {
-        const index = this.tasks.findIndex(task => task.id === id);
-        if (index !== -1) {
-            this.tasks.splice(index, 1);
-        }
-    }
-
-    filterTasksByDate(startDate, endDate) {
-        return this.tasks.filter(task => {
-            const taskDate = new Date(task.dueDate);
-            return taskDate >= startDate && taskDate <= endDate;
-        });
-    }
-
-    filterTasksByCategory(categoryName) {
-        return this.tasks.filter(task => task.category.name === categoryName);
-    }
-
-    // Add any additional methods you might need in the future
-}
-
+// ---------------------------- CATEGORIES ----------------------------
 class Category {
-    constructor(id, name) {
-        this.id = id;
+    constructor(name, color, catId = null) {
         this.name = name;
+        this.color = color;
+        this.tasks = [];
+        this.catId = catId || ++lastCatId;
+    }
+    addTaskToCat(task) {
+        this.tasks.push(task);
+        // Set the task's ID to match the correct counter value
+        task.id = taskCounter;
+        taskCounter++;
+    }
+    removeTaskFromCat(taskId) {
+        this.tasks = this.tasks.filter(task => task.id !== taskId);
     }
 }
+let defaultCategories = initializeDefaultCategories();
+let categories = [...defaultCategories]; 
+function initializeDefaultCategories() {
+    const categoryButtons = document.querySelectorAll('.categoriesDiv button');
+    let categories = Array.from(categoryButtons).map(button => {
+        let catId = parseInt(button.dataset.catId);
+        if (catId > lastCatId) lastCatId = catId;
+        return new Category(button.textContent.trim(), null, catId); // Passing catId to the constructor
+    });
 
-class CategoryManager {
-    constructor() {
-        this.categories = [];
-        this.nextId = 1; // This can be used to generate unique IDs for categories
+    return categories;
+} 
+function updateCategoryDropdown() {
+    // Clear any existing options
+    let categorySelect = document.getElementById('category');
+    while (categorySelect.firstChild) {
+        categorySelect.removeChild(categorySelect.firstChild);
     }
-    addCategory(name) {
-        const category = {
-            id: this.nextId,
-            name: name
-        };
-        this.categories.push(category);
-        this.nextId++;
-    }
-    getCategoryById(id) {
-        return this.categories.find(cat => cat.id === id);
-    }
-    getCategoryByName(name) {
-        return this.categories.find(cat => cat.name === name);
-    }
-    editCategory(id, newName) {
-        const category = this.getCategoryById(id);
-        if (category) {
-            category.name = newName;
-        } else {
-            console.error(`Category with ID ${id} not found.`);
-        }
-    }
-    deleteCategory(id) {
-        const index = this.categories.findIndex(cat => cat.id === id);
-        if (index !== -1) {
-            this.categories.splice(index, 1);
-        } else {
-            console.error(`Category with ID ${id} not found.`);
-        }
-    }
+    // Add new options based on the categories array
+    categories.forEach(category => {
+        let option = document.createElement('option');
+        option.value = category.name;
+        option.textContent = category.name;
+        categorySelect.appendChild(option);
+    });
 }
+function getTaskById(taskId) {
+    // Loop through each category
+    for (const category of categories) {
+      // Find the task in the category's tasks array with the matching ID
+      const task = category.tasks.find((task) => task.id == taskId);
+      if (task) {
+        return task; // Return the task if found
+      }
+    }
+    return null; // Return null if no task with the given ID is found
+  }
+//Checks if we are edditing or creating a new cat  
+let currentMode = null;
+let catID;
 
-class UI {
-    constructor(taskManager, categoryManager) {
-        this.taskManager = taskManager;
-        this.categoryManager = categoryManager;
-        this.initDOMReferences();
-    }
-    initDOMReferences() {
-        // DOM references
-        this.allBtn = document.getElementById('allBtn');
-        this.todayBtn = document.getElementById('todayBtn');
-        this.thisWeekBtn = document.getElementById('thisWeekBtn');
-        this.thisMonthBtn = document.getElementById('thisMonthBtn');
-        this.pageTimeline = document.getElementById('pageTimeline');
-        this.collapseBtn = document.getElementById('collapseBtn'); // Assuming you have a button with this ID
-        this.nav = document.getElementById('nav'); // Assuming you have an element with this ID
-        this.content = document.getElementById('content'); // Assuming you have an element with this ID
-        this.modal = document.getElementById('modal'); // Assuming you have an element with this ID
-        this.catModal = document.getElementById('catModal'); // Assuming you have an element with this ID
-        this.form = document.getElementById('form'); // Assuming you have a form with this ID
-        this.okTaskBtn = document.getElementById('okTaskBtn'); // Assuming you have a button with this ID
-        // ... add other references as needed
-    }
-    setupUI() {
-        this.initializePageFilters();
-        this.setFilterBtnListeners();
-        this.setNavigationCollapseExpand();
-        this.setModalListeners();
-        this.setFormSubmitListener();
+newCatBtn.addEventListener('click', function() {
+   currentMode = 'new';
+   catModal.style.display = "block";
+});
+function editCategory(){
+    pageTitle.addEventListener('click', function(){
+        catID = parseInt(this.dataset.catId);
+        currentMode = 'edit';
+        openCatModalForEditing(pageTitle, catID);
+    });
+    function openCatModalForEditing(pageTitle, catID){
 
-         // Now, display the tasks and categories
-         this.displayAllTasks();
-         this.displayAllCategories();
+        console.log('Editing category with ID:', catID);
+        console.log(pageTitle.textContent);
+        console.log(pageTitle.style.backgroundColor);
+
+        
+        let catTitle = document.getElementById('catTitle');
+        let colorDisplay = document.getElementById('colorDisplay');
+
+        // Set the form inputs to the task's values
+        catTitle.value = pageTitle.textContent;
+        colorDisplay.style.backgroundColor = pageTitle.style.backgroundColor;
+        
+        // Show the modal
+        catModal.style.display = "block";
     }
-    displayAllTasks() {
-        // Logic to display tasks. This might involve iterating over `this.taskManager.tasks` and adding them to the DOM.
+} editCategory();
+
+//color picker
+const colorPicker = document.getElementById('colorPicker');
+colorPicker.value ='#8a59b9';
+const colorDisplay = document.getElementById('colorDisplay');
+colorDisplay.addEventListener('click', function() {
+    colorPicker.click();
+  });
+  // When you pick a color, update the display
+  colorPicker.addEventListener('input', function() {
+    colorDisplay.style.background = colorPicker.value;
+  });
+function isDarkColor(color) {
+    // Convert hex color to rgb
+    let rgb;
+    if (color.startsWith('#')) {
+        let r = parseInt(color.slice(1, 3), 16);
+        let g = parseInt(color.slice(3, 5), 16);
+        let b = parseInt(color.slice(5, 7), 16);
+        rgb = { r, g, b };
+    } else {
+        // Assume it's already an rgb color
+        rgb = color;
     }
 
-    displayAllCategories() {
-        // Logic to display categories. Iterate over `this.categoryManager.categories` and add them to the DOM.
-    }
-    initializePageFilters() {
-        let currentCategory = document.getElementById('inboxBtn');
-        currentCategory.classList.add('selectedFilter');
-        this.filterPageChanges(currentCategory);
-        let currentTimeline = document.getElementById('allBtn');
-        currentTimeline.classList.add('selectedFilter');
-    }
-    setFilterBtnListeners() {
-        this.todayBtn.addEventListener('click', () => {
-            const today = this.getCurrentDate();
-            this.taskManager.selectedEndDate = today;
-            this.taskManager.filterTasksByDateAndCategory(today, this.categoryManager.selectedCategory);
-            this.removeFilterClasses();
-            this.todayBtn.classList.add('selectedFilter');
-            this.pageTimeline.textContent = this.todayBtn.textContent;
-        });  
-        this.thisWeekBtn.addEventListener('click', () => {
-            const today = this.getCurrentDate();
-            const oneWeekLater = new Date();
-            oneWeekLater.setDate(today.getDate() + 7);
-            this.taskManager.selectedEndDate = oneWeekLater;
-            this.taskManager.filterTasksByDateAndCategory(oneWeekLater, this.categoryManager.selectedCategory);
-            this.removeFilterClasses();
-            this.thisWeekBtn.classList.add('selectedFilter');
-            this.pageTimeline.textContent = this.thisWeekBtn.textContent;
-        });    
-        this.thisMonthBtn.addEventListener('click', () => {
-            const today = this.getCurrentDate();
-            const oneMonthLater = new Date();
-            oneMonthLater.setDate(today.getDate() + 30);
-            this.taskManager.selectedEndDate = oneMonthLater;
-            this.taskManager.filterTasksByDateAndCategory(oneMonthLater, this.categoryManager.selectedCategory);
-            this.removeFilterClasses();
-            this.thisMonthBtn.classList.add('selectedFilter');
-            this.pageTimeline.textContent = this.thisMonthBtn.textContent;
-        });
-        this.allBtn.addEventListener('click', () => {
-            this.taskManager.selectedEndDate = null;
-            this.taskManager.filterTasksByDateAndCategory(null, this.categoryManager.selectedCategory);
-            this.removeFilterClasses();
-            this.allBtn.classList.add('selectedFilter');
-            this.pageTimeline.textContent = this.allBtn.textContent;
-        });
-    }
-    setNavigationCollapseExpand() {
-        this.collapseBtn.addEventListener('click', () => {
-            // ... your logic for collapse/expand
-        });
-    }
-    setModalListeners() {
-        const span = this.modal.querySelector('span'); // This assumes there's a span inside the modal for closing it
-        const spanCatModal = this.catModal.querySelector('span'); // Similarly, for the catModal
+    // Calculate brightness on a scale from 0 to 255
+    let brightness = Math.round(((rgb.r * 299) + (rgb.g * 587) + (rgb.b * 114)) / 1000);
     
-        span.onclick = () => {
-            this.modal.style.display = "none";
-        };
-        spanCatModal.onclick = () => {
-            this.catModal.style.display = "none";
-        };
-        window.onclick = (event) => {
-            if (event.target == this.modal) {
-                this.modal.style.display = "none";
-            } else if(event.target == this.catModal) {
-                this.catModal.style.display = "none";
-            }
-        };
+    return brightness < 170; // Return true if the color is dark
+}
+
+// ---------------------------- FILTERS & DISPLAY ----------------------------
+
+function filterBtnsEvListeners(){
+    const allBtn = document.getElementById('allBtn');
+    const todayBtn = document.getElementById('todayBtn');
+    const thisWeekBtn = document.getElementById('thisWeekBtn');
+    const thisMonthBtn = document.getElementById('thisMonthBtn');
+    const pageTimeline = document.getElementById('pageTimeline');
+
+    function removeFilters(){
+        thisWeekBtn.classList.remove('selectedFilter');
+        thisMonthBtn.classList.remove('selectedFilter');
+        allBtn.classList.remove('selectedFilter');
+        todayBtn.classList.remove('selectedFilter');
     }
-    setFormSubmitListener() {
-        this.form.addEventListener('keydown', event => {
-            if (event.key === "Enter") {
-                event.preventDefault(); 
-                this.okTaskBtn.click(); 
-            }
+
+    //Timeline buttons event listeners
+    todayBtn.addEventListener('click', function () {
+        const today = getCurrentDate();
+        selectedEndDate = today;
+        filterTasksByDateAndCategory(selectedEndDate, selectedCategory);
+        removeFilters();
+        todayBtn.classList.add('selectedFilter');
+        pageTimeline.textContent = this.textContent;
+
+    });
+    thisWeekBtn.addEventListener('click', function () {
+        const today = getCurrentDate();
+        const oneWeekLater = new Date();
+        oneWeekLater.setDate(today.getDate() + 7);
+        selectedEndDate = oneWeekLater;
+        filterTasksByDateAndCategory(selectedEndDate, selectedCategory);
+        removeFilters();
+        thisWeekBtn.classList.add('selectedFilter');
+        pageTimeline.textContent = this.textContent;
+    });
+    thisMonthBtn.addEventListener('click', function () {
+        const today = getCurrentDate();
+        const oneMonthLater = new Date();
+        oneMonthLater.setDate(today.getDate() + 30);
+        selectedEndDate = oneMonthLater;
+        filterTasksByDateAndCategory(selectedEndDate, selectedCategory);
+        removeFilters();
+        thisMonthBtn.classList.add('selectedFilter');
+        pageTimeline.textContent = this.textContent;
+    });
+    allBtn.addEventListener('click', function () {
+        selectedEndDate = null;
+        filterTasksByDateAndCategory(selectedEndDate, selectedCategory)
+        removeFilters();
+        allBtn.classList.add('selectedFilter');
+        pageTimeline.textContent = this.textContent;
+        allBtn.classList.add('selectedFilter');
+
+    });
+
+    //Category buttons event listeners
+    let categoryButtons = document.querySelectorAll('.catBtns');
+    categoryButtons.forEach((catBtn) => {
+        catBtn.addEventListener('click', function() {
+            // Remove 'selectedFilter' class from all category buttons
+            categoryButtons.forEach((button) => {
+                button.classList.remove('selectedFilter');
+            });
+    
+            // Add 'selectedFilter' class to the clicked button
+            this.classList.add('selectedFilter');
+    
+            // Set selectedCategory to the clicked button's text content
+            selectedCategory = this.textContent;
+            catID = parseInt(this.dataset.catId);
+    
+            // Set styling to page title
+            filterPageChanges(this);
+            // Apply the filter
+            filterTasksByDateAndCategory(selectedEndDate, selectedCategory, catID);
         });
-    }
-    filterPageChanges(currentCategory) {
+    }); 
+
+    function initializePageFilters(){
+        let currentCategory = document.getElementById('inboxBtn');
+        currentCategory.classList.add('selectedFilter')
+        filterPageChanges(currentCategory);
+        let currentTimeline = document.getElementById('allBtn');
+        currentTimeline.classList.add('selectedFilter')
+    }initializePageFilters();
+    function filterPageChanges(currentCategory){
         let computedStyle = window.getComputedStyle(currentCategory);
         let bgColor = computedStyle.backgroundColor;
         let fontColor = computedStyle.color;
-        this.pageTitle.style.backgroundColor = bgColor; // Assuming pageTitle is also a DOM reference you missed mentioning.
-        this.pageTitle.style.color = fontColor;
+        pageTitle.style.backgroundColor = bgColor;
+        pageTitle.style.color = fontColor;
     }
+} filterBtnsEvListeners();
+function getCurrentDate(){ //helper function to filter tasks
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Set hours, minutes, seconds, and milliseconds to 0 to compare only the dates
+    return today;
 }
+function filterTasksByDateAndCategory(endDate, selectedCategory, catID) {
+    // Loop through all taskContainerDiv elements and check their tasks' due dates
+    const allTaskContainerDivs = document.querySelectorAll('.taskContainerDiv');
+    allTaskContainerDivs.forEach((taskContainerDiv) => {
+        const taskDiv = taskContainerDiv.querySelector('.taskDiv'); // Get the taskDiv inside the current taskContainerDiv
+        const taskId = taskDiv.dataset.taskId;
+        const task = getTaskById(taskId); // Retrieve the task object by ID
+
+        // Check if the task's due date is between startDate and endDate
+        const taskDueDate = new Date(formatDateForInput(task.dueDate));
+        taskDueDate.setHours(0, 0, 0, 0);
+
+        // Check if the task's category matches the selected category
+        const taskCategory = task.category;
+
+        if ((endDate === null || taskDueDate <= endDate) && (selectedCategory === "All Inbox" || taskCategory.name === selectedCategory)) {
+            // Show the taskContainerDiv if its due date is between startDate and endDate, and category matches
+            taskContainerDiv.style.display = 'block';
+        } else {
+            // Hide the taskContainerDiv if its due date is outside the range or category doesn't match
+            taskContainerDiv.style.display = 'none';
+        }
+    });
+
+    //apply page title based on categry
+    pageTitle.textContent = selectedCategory;
+    pageTitle.dataset.catId = catID;
+}
+
+// Nav Collapse & Expand
+collapseBtn.addEventListener('click', function() {
+    const navDisplayStyle = window.getComputedStyle(nav).display;
+    const screenWidth = window.innerWidth;
+    const isSmallScreen = screenWidth < 750;
+  
+    if (isSmallScreen) {
+      if (navDisplayStyle === 'none') {
+        nav.style.display = 'block';
+        nav.style.zIndex = '2';
+        content.style.gridColumn = '1 / 3';
+        content.classList.add('overlay');
+        collapseBtn.src = './images/collapse3.png';
+      //   collapseBtn.style.marginLeft = '140px';
+      } else {
+        nav.style.display = 'none';
+        nav.style.zIndex = '';
+        content.style.gridColumn = '1 / -1';
+        content.classList.remove('overlay');
+        console.log('expand');
+        collapseBtn.src = './images/expand3.png';
+      //   collapseBtn.style.marginLeft = '12px';
+      }
+    } else {
+      if (navDisplayStyle === 'none') {
+        nav.style.display = 'block';
+        nav.style.zIndex = '';
+        content.style.gridColumn = '2/3';
+        content.classList.remove('overlay');
+        collapseBtn.src = './images/collapse3.png';
+      //   collapseBtn.style.marginLeft = '240px';
+      } else {
+        nav.style.display = 'none';
+        nav.style.zIndex = '';
+        content.style.gridColumn = '1 / -1';
+        content.classList.remove('overlay');
+        console.log('expand');
+        collapseBtn.src = './images/expand3.png';
+      //   collapseBtn.style.marginLeft = '12px';
+      }
+    }
+  });
+// Closing Modal
+span.onclick = function() {
+    modal.style.display = "none";
+    delete titleInput.dataset.editingTaskId;
+}; spanCatModal.onclick = function() {
+    catModal.style.display = "none";
+}     
+window.onclick = function(event) { // Closes Modal when clicking outside of it 
+    if (event.target == modal) {
+      modal.style.display = "none";
+    } else if(event.target == catModal) {
+        catModal.style.display = "none";
+      }
+}
+// Enter = Click
+form.addEventListener('keydown', function(event) {
+    if (event.key === "Enter") {
+        event.preventDefault(); 
+        okTaskBtn.click(); 
+    }
+});
+
+// Workin Progress
+
+
 
