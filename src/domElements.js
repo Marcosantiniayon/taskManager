@@ -1,7 +1,7 @@
 import { Task, taskCounter } from "./taskFunctions";
 import { getCurrentDate, formatDateForInput, isDarkColor, rgbToHex } from "./helperFunctions";
 import { filterPageChanges, removeFilters, filterTasksByDateAndCategory } from "./displayFunctions";
-import { categories, catID, currentMode } from "./categoryFunctions";
+import { Category, categories, catID, currentMode } from "./categoryFunctions";
 
 
 const content = document.querySelector('.content');
@@ -316,10 +316,20 @@ export function initializeCatEventListeners(){
   newCatBtn.addEventListener('click', function() {
       currentMode = 'new';
       catModal.style.display = "block";
+      catTitle.value = "";
+      colorDisplay.style.backgroundColor = '#8a59b9';
+      console.log(colorDisplay);
+
    });
    okCatBtn.addEventListener('click', function(event) {
        event.preventDefault(); // Prevent the form from submitting
    
+       // Get the RGB color & convert to hex. Then set the colorPicker value to the hex
+        let rgbColor = colorDisplay.style.backgroundColor;
+        let hexColor = rgbToHex(rgbColor);
+        colorDisplay.style.background = hexColor;
+        colorPicker.value = hexColor;
+
        if (currentMode === 'new') {
            // Get the category name and color from the form inputs
            let catTitle = document.getElementById('catTitle').value;
@@ -368,8 +378,11 @@ export function initializeCatEventListeners(){
                    if (isDarkColor(editingCategory.color)) {
                        associatedButton.style.color = 'white';
                        pageTitle.style.color = 'white';
+                       console.log(pageTitle.style.color);
                    } else {
                        associatedButton.style.color = 'black';
+                       pageTitle.style.color = 'black';
+                       console.log(pageTitle.style.color);
                    }
                }
            } else {
@@ -378,6 +391,7 @@ export function initializeCatEventListeners(){
 
            //Update page title
            pageTitle.innerHTML = catTitle.value;
+           console.log(colorPicker.value);
            pageTitle.style.backgroundColor = colorPicker.value;
        }
        updateCategoryDropdown();
@@ -403,15 +417,10 @@ export function initializeCatEventListeners(){
    cancelCatBtn.addEventListener('click', function() {    
    });
    pageTitle.addEventListener('click', function(){
-    console.log(this.dataset.catId);
        catID = parseInt(this.dataset.catId);
        currentMode = 'edit';
        openCatModalForEditing(pageTitle, catID);
        function openCatModalForEditing(pageTitle, catID){
-   
-           console.log('Editing category with ID:', catID);
-           console.log(pageTitle.style.backgroundColor);
-           
            let catTitle = document.getElementById('catTitle');
            let colorDisplay = document.getElementById('colorDisplay');
        
@@ -425,14 +434,6 @@ export function initializeCatEventListeners(){
    });
    colorDisplay.addEventListener('click', function() {
     console.log(colorDisplay.style.backgroundColor);
-
-    // Get the RGB color & convert to hex. Then set the colorPicker value to the hex
-    let rgbColor = colorDisplay.style.backgroundColor;
-    let hexColor = rgbToHex(rgbColor);
-    colorDisplay.style.background = hexColor;
-    colorPicker.value = hexColor;
-
-    
     colorPicker.click();
       
     });
