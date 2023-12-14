@@ -40,6 +40,7 @@ let prioritySelect = document.getElementById("priority");
 let descriptionInput = document.getElementById("description");
 let categoryButtons = document.querySelectorAll('.catBtns');
 
+let currentCategory = document.getElementById('inboxBtn');
 let selectedCategory = "All Inbox";
 let selectedEndDate = getCurrentDate();
 
@@ -248,6 +249,10 @@ export function initializeTaskEventListeners(){
               modal.style.display = "none";
               filterTasksByDateAndCategory(selectedEndDate, selectedCategory);
           }
+          currentCategory = categorySelect.value;
+          console.log(currentCategory);
+          filterPageChanges(document.querySelector(`#${currentCategory}`));
+
   });
   deleteBtnModal.addEventListener('click', function(event) {
       event.stopPropagation();
@@ -318,7 +323,6 @@ export function initializeCatEventListeners(){
       catModal.style.display = "block";
       catTitle.value = "";
       colorDisplay.style.backgroundColor = '#8a59b9';
-      console.log(colorDisplay);
 
    });
    okCatBtn.addEventListener('click', function(event) {
@@ -343,6 +347,7 @@ export function initializeCatEventListeners(){
            let newCategoryElement = document.createElement('li');
            let newButton = document.createElement('button');
            newButton.innerText = catTitle;
+           newButton.id = catTitle;
            newButton.classList.add('catBtns');
            newButton.style.backgroundColor = catColor;
            newButton.dataset.catId = newCategory.catId;
@@ -353,9 +358,10 @@ export function initializeCatEventListeners(){
                newButton.style.color = 'black';
            }
            
-       newCategoryElement.appendChild(newButton);
-       document.getElementById('categoriesList').appendChild(newCategoryElement);
-       } else if (currentMode === 'edit') {
+        newCategoryElement.appendChild(newButton);
+        document.getElementById('categoriesList').appendChild(newCategoryElement);
+        initializeCatFilterEvListeners();
+    } else if (currentMode === 'edit') {
            //Retrieve the category from the categories array based on the catID
            console.log(catID);
            if (typeof catID !== "number") {
@@ -442,7 +448,6 @@ export function initializeCatEventListeners(){
     });
 };
 export function initializeDefaultFilters(){
-  let currentCategory = document.getElementById('inboxBtn');
   currentCategory.classList.add('selectedFilter')
   filterPageChanges(currentCategory);
   let currentTimeline = document.getElementById('allBtn');
@@ -490,6 +495,8 @@ export function initializeTimeFilterEvListeners(){
   });
 };
 export function initializeCatFilterEvListeners(){
+  //Reselect category buttons to pick up any newly added one  
+  categoryButtons = document.querySelectorAll('.catBtns'); 
   categoryButtons.forEach((catBtn) => {
     catBtn.addEventListener('click', function() {
         // Remove 'selectedFilter' class from all category buttons

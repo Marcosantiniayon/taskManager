@@ -100,6 +100,7 @@ li{
     width: auto;
     transition: transform 0.3s ease; /* for smooth transition */
 }
+    /* [id="All Inbox"] */
     #inboxBtn{background-color: #7b7b7b; color: white;}
     #responsibilitiesBtn{background-color: #947741; color: white;}
     #eventsBtn{background-color: #b0a529; color: white;}

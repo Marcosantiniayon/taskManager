@@ -1,8 +1,9 @@
 import { categories } from "./categoryFunctions";
 import { formatDateForInput } from "./helperFunctions";
+// import { currentCategory } from "./domElements";
 
-export function filterPageChanges(currentCategory){
-    let computedStyle = window.getComputedStyle(currentCategory);
+export function filterPageChanges(categoryButton){
+    let computedStyle = window.getComputedStyle(categoryButton);
     let bgColor = computedStyle.backgroundColor;
     let fontColor = computedStyle.color;
     pageTitle.style.backgroundColor = bgColor;
