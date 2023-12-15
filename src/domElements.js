@@ -17,10 +17,10 @@ const deleteBtnModal = document.getElementById('delete');
 const newCatBtn = document.getElementById('newCatBtn');
 const okCatBtn = document.getElementById('okCatBtn');
 const cancelCatBtn = document.getElementById('cancelCatBtn');
-const inboxBtn = document.getElementById('inboxBtn')
-const responsibilitiesBtn = document.getElementById('responsibilitiesBtn');
-const eventsBtn = document.getElementById('eventsBtn');
-const programmingBtn = document.getElementById('programmingBtn');
+const inboxBtn = document.getElementById('All Inbox')
+const responsibilitiesBtn = document.getElementById('Responsibilities');
+const eventsBtn = document.getElementById('Events & Social');
+const programmingBtn = document.getElementById('Programming Course');
 const colorPicker = document.getElementById('colorPicker');
 const colorDisplay = document.getElementById('colorDisplay');
 const allBtn = document.getElementById('allBtn');
@@ -40,7 +40,7 @@ let prioritySelect = document.getElementById("priority");
 let descriptionInput = document.getElementById("description");
 let categoryButtons = document.querySelectorAll('.catBtns');
 
-let currentCategory = document.getElementById('inboxBtn');
+let currentCategory = document.getElementById('All Inbox');
 let selectedCategory = "All Inbox";
 let selectedEndDate = getCurrentDate();
 
