@@ -40,8 +40,9 @@ let prioritySelect = document.getElementById("priority");
 let descriptionInput = document.getElementById("description");
 let categoryButtons = document.querySelectorAll('.catBtns');
 
-let currentCategory = document.getElementById('All Inbox');
-let selectedCategory = "All Inbox";
+// let defaultCategory = document.getElementById('All Inbox');
+let selectedCategory = 'All Inbox';
+let selectedCategoryBtn = document.getElementById(selectedCategory);
 let selectedEndDate = getCurrentDate();
 
 export {
@@ -68,12 +69,14 @@ export function initializeTaskEventListeners(){
       // Show the modal
       modal.style.display = "block";
   });
+  
   cancelTaskBtn.addEventListener('click', function(event) {
       event.preventDefault(); // Prevent the form from submitting
       modal.style.display = "none";
   });
+
   okTaskBtn.addEventListener('click', function(event) { //Calls addTask or editTask
-      if (document.querySelector('form').reportValidity()) {
+    if (document.querySelector('form').reportValidity()) {
           event.preventDefault();
           titleInput.classList.remove('error');
           
@@ -95,165 +98,167 @@ export function initializeTaskEventListeners(){
   
           modal.style.display = "none";
       
-          } else { titleInput.classList.add('error'); }
+        } else { titleInput.classList.add('error'); }
       
-          function addTask(title, category, categoryObject, dueDate, importance, description){
-              // Create Task Object 
-              let newTask = new Task(taskCounter, title, categoryObject, dueDate, importance, description);
-          
-              taskCounter++;
-              console.log(categoryObject);
-              categoryObject.addTaskToCat(newTask);
-              let taskId = newTask.id
-              
-              // Container div for the task and the line break
-              const taskContainerDiv = document.createElement('div');
-              taskContainerDiv.classList.add('taskContainerDiv');
-          
-              // Add Task Div
-              function addTaskDiv(taskId, title, category, dueDate, taskCounter, prioritySelect){
-                  const taskBigDiv = document.createElement('div');
-                  taskBigDiv.classList.add('taskBigDiv');
-                  const taskDiv = document.createElement('div');
-                  taskDiv.classList.add('taskDiv');
-                  taskDiv.id = taskId;
-                  taskDiv.dataset.taskId = taskId;
-          
-                  taskDiv.addEventListener('click', function() {
-                      openTaskModalForEditing(newTask);
-                  });
-                  const taskPrim = document.createElement('div');
-                      taskPrim.classList.add('taskPrim');
-                  taskDiv.appendChild(taskPrim);
-          
-                      const checkbox = document.createElement('input');
-                          checkbox.type = 'checkbox';
-                          checkbox.addEventListener('click', function(event) {
-                          event.stopPropagation();
-                          if (this.checked) {
-                          taskTitle.classList.add('complete');
-                          taskCategory.classList.add('complete');
-                          taskDueDate.classList.add('complete');
-                          taskPriority.classList.add('complete');
-                          } else {
-                              taskTitle.classList.remove('complete');
-                              taskCategory.classList.remove('complete');
-                          taskDueDate.classList.remove('complete');
-                          taskPriority.classList.remove('complete');
-                          }
-                          });
-          
-                      const taskTitle = document.createElement('div');
-                          taskTitle.classList.add('taskTitle');
-                          taskTitle.textContent = title;
-                      const taskCategory = document.createElement('div');
-                          taskCategory.classList.add('taskCategory');
-                          taskCategory.textContent = "(" + category + ")";
-          
-                      taskPrim.appendChild(checkbox);taskPrim.appendChild(taskTitle);taskPrim.appendChild(taskCategory);
-          
-                  const taskSec = document.createElement('div');
-                      taskSec.classList.add('taskSec');
-                  taskDiv.appendChild(taskSec);
-          
-                      const taskDueDate = document.createElement('div');
-                          taskDueDate.classList.add('taskDueDate');
-                          taskDueDate.textContent = formatDateForInput(dueDate);
-                      const taskPriority = document.createElement('div');
-                          taskPriority.classList.add('taskDueDate');
-                      const taskPriorityImg = document.createElement('img');
-                      if(prioritySelect.value == "Highest"){taskPriorityImg.src = "./images/warning-333.png"}
-                      else if(prioritySelect.value == "High"){taskPriorityImg.src = "./images/warning-222.png"}
-                      else if(prioritySelect.value == "Medium"){taskPriorityImg.src = "./images/warning-111.png"}
-                      else {taskPriorityImg.src = "./images/warning_grey.png"}
-                          taskPriorityImg.classList.add('symbol');
-                          taskPriority.appendChild(taskPriorityImg);
-                      const deleteBtnBigDiv = document.createElement('img');
-                          deleteBtnBigDiv.id = taskId;
-                          deleteBtnBigDiv.src = "./images/delete.png"; // Change to your delete image's path
-                          deleteBtnBigDiv.classList.add('symbol');
-          
-                      deleteBtnBigDiv.addEventListener('click', function(event) {
-                          event.stopPropagation();
-                          // Get taskId from the editingTaskId data attribute
-                          let taskId = deleteBtnBigDiv.id;
-                          if (!taskId) {
-                              console.log('No task is currently being edited');
-                              return;
-                          } deleteTask(taskId);
-                      });
-          
-                        taskSec.appendChild(taskDueDate); taskSec.appendChild(taskPriority);
-                      taskBigDiv.appendChild(taskDiv);taskBigDiv.appendChild(deleteBtnBigDiv);
-          
-                  const linebreak = document.createElement('hr');
-          
-                  taskContainerDiv.appendChild(taskBigDiv);taskContainerDiv.appendChild(linebreak);tasksContainer.appendChild(taskContainerDiv);    
-              } addTaskDiv(taskId, title, category, dueDate, taskCounter, prioritySelect);
-              
-              filterTasksByDateAndCategory(selectedEndDate, selectedCategory);
-          
-              function openTaskModalForEditing(task){
-                  console.log(task);
-                  // Set the form inputs to the task's values
-                  titleInput.value = task.title;
-                  categorySelect.value = task.category.name;
-                  dueDateSelect.value = task.dueDate;
-                  prioritySelect.value = task.priority;
-                  descriptionInput.value = task.description;
-                  
-                  // Set the data attribute on the title input to the task's id so we know which task is being edited
-                  titleInput.dataset.editingTaskId = task.id;
-                  
-                  // Show the modal
-                  modal.style.display = "block";
-                  }
-          }
-          function editTask(title, categoryObject, dueDate, importance, description){
-              // Editing Task Object
-              let taskId = titleInput.dataset.editingTaskId;
-              let taskObject;
-              for(let category of categories) {
-                  taskObject = category.tasks.find(task => task.id == taskId);
-                  if(taskObject) {
-                      break;
-                  }
-              }
-              if (taskObject === undefined) {
-                  console.error(`No task found with id ${taskId}`);
-                  return;
-              }
-          
-              // Update the task object's values
-              taskObject.title = title;
-              taskObject.category = categoryObject;
-              taskObject.dueDate = dueDate;
-              taskObject.priority = importance;
-              taskObject.description = description;
-          
-              // Log the taskId and taskDiv here
-              console.log('editing task, title: ' + title + ' id: ' + taskId);
-              let taskDiv = document.getElementById(taskId);
-          
-              // Update the taskDiv's textContent to reflect the new values
-              taskDiv.querySelector('.taskTitle').textContent = title;
-              taskDiv.querySelector('.taskCategory').textContent = `(${categoryObject.name})`;
-              taskDiv.querySelector('.taskDueDate').textContent = formatDateForInput(dueDate);
-              let taskPriorityImg = taskDiv.querySelector('.symbol');
-                  if(importance == "Highest"){taskPriorityImg.src = "./images/warning-333.png"}
-                  else if(importance == "High"){taskPriorityImg.src = "./images/warning-222.png"}
-                  else if(importance == "Medium"){taskPriorityImg.src = "./images/warning-111.png"}
-                  else {taskPriorityImg.src = "./images/warning_grey.png"}
-          
-              delete titleInput.dataset.editingTaskId;
-              modal.style.display = "none";
-              filterTasksByDateAndCategory(selectedEndDate, selectedCategory);
-          }
-          currentCategory = categorySelect.value;
-          console.log(currentCategory);
-          filterPageChanges(document.querySelector(`#${currentCategory}`));
+    function addTask(title, category, categoryObject, dueDate, importance, description){
+        // Create Task Object 
+        let newTask = new Task(taskCounter, title, categoryObject, dueDate, importance, description);
+    
+        taskCounter++;
+        console.log(categoryObject);
+        categoryObject.addTaskToCat(newTask);
+        let taskId = newTask.id
+        
+        // Container div for the task and the line break
+        const taskContainerDiv = document.createElement('div');
+        taskContainerDiv.classList.add('taskContainerDiv');
+    
+        // Add Task Div
+        function addTaskDiv(taskId, title, category, dueDate, taskCounter, prioritySelect){
+            const taskBigDiv = document.createElement('div');
+            taskBigDiv.classList.add('taskBigDiv');
+            const taskDiv = document.createElement('div');
+            taskDiv.classList.add('taskDiv');
+            taskDiv.id = taskId;
+            taskDiv.dataset.taskId = taskId;
+    
+            taskDiv.addEventListener('click', function() {
+                openTaskModalForEditing(newTask);
+            });
+            const taskPrim = document.createElement('div');
+                taskPrim.classList.add('taskPrim');
+            taskDiv.appendChild(taskPrim);
+    
+                const checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.addEventListener('click', function(event) {
+                    event.stopPropagation();
+                    if (this.checked) {
+                    taskTitle.classList.add('complete');
+                    taskCategory.classList.add('complete');
+                    taskDueDate.classList.add('complete');
+                    taskPriority.classList.add('complete');
+                    } else {
+                        taskTitle.classList.remove('complete');
+                        taskCategory.classList.remove('complete');
+                    taskDueDate.classList.remove('complete');
+                    taskPriority.classList.remove('complete');
+                    }
+                    });
+    
+                const taskTitle = document.createElement('div');
+                    taskTitle.classList.add('taskTitle');
+                    taskTitle.textContent = title;
+                const taskCategory = document.createElement('div');
+                    taskCategory.classList.add('taskCategory');
+                    taskCategory.textContent = "(" + category + ")";
+    
+                taskPrim.appendChild(checkbox);taskPrim.appendChild(taskTitle);taskPrim.appendChild(taskCategory);
+    
+            const taskSec = document.createElement('div');
+                taskSec.classList.add('taskSec');
+            taskDiv.appendChild(taskSec);
+    
+                const taskDueDate = document.createElement('div');
+                    taskDueDate.classList.add('taskDueDate');
+                    taskDueDate.textContent = formatDateForInput(dueDate);
+                const taskPriority = document.createElement('div');
+                    taskPriority.classList.add('taskDueDate');
+                const taskPriorityImg = document.createElement('img');
+                if(prioritySelect.value == "Highest"){taskPriorityImg.src = "./images/warning-333.png"}
+                else if(prioritySelect.value == "High"){taskPriorityImg.src = "./images/warning-222.png"}
+                else if(prioritySelect.value == "Medium"){taskPriorityImg.src = "./images/warning-111.png"}
+                else {taskPriorityImg.src = "./images/warning_grey.png"}
+                    taskPriorityImg.classList.add('symbol');
+                    taskPriority.appendChild(taskPriorityImg);
+                const deleteBtnBigDiv = document.createElement('img');
+                    deleteBtnBigDiv.id = taskId;
+                    deleteBtnBigDiv.src = "./images/delete.png"; // Change to your delete image's path
+                    deleteBtnBigDiv.classList.add('symbol');
+    
+                deleteBtnBigDiv.addEventListener('click', function(event) {
+                    event.stopPropagation();
+                    // Get taskId from the editingTaskId data attribute
+                    let taskId = deleteBtnBigDiv.id;
+                    if (!taskId) {
+                        console.log('No task is currently being edited');
+                        return;
+                    } deleteTask(taskId);
+                });
+    
+                taskSec.appendChild(taskDueDate); taskSec.appendChild(taskPriority);
+                taskBigDiv.appendChild(taskDiv);taskBigDiv.appendChild(deleteBtnBigDiv);
+    
+            const linebreak = document.createElement('hr');
+    
+            taskContainerDiv.appendChild(taskBigDiv);taskContainerDiv.appendChild(linebreak);tasksContainer.appendChild(taskContainerDiv);    
+        } addTaskDiv(taskId, title, category, dueDate, taskCounter, prioritySelect);
+        
+        filterTasksByDateAndCategory(selectedEndDate, selectedCategory);
+    
+        function openTaskModalForEditing(task){
+            console.log(task);
+            // Set the form inputs to the task's values
+            titleInput.value = task.title;
+            categorySelect.value = task.category.name;
+            dueDateSelect.value = task.dueDate;
+            prioritySelect.value = task.priority;
+            descriptionInput.value = task.description;
+            
+            // Set the data attribute on the title input to the task's id so we know which task is being edited
+            titleInput.dataset.editingTaskId = task.id;
+            
+            // Show the modal
+            modal.style.display = "block";
+            }
+    }
+    function editTask(title, categoryObject, dueDate, importance, description){
+        // Editing Task Object
+        let taskId = titleInput.dataset.editingTaskId;
+        let taskObject;
+        for(let category of categories) {
+            taskObject = category.tasks.find(task => task.id == taskId);
+            if(taskObject) {
+                break;
+            }
+        }
+        if (taskObject === undefined) {
+            console.error(`No task found with id ${taskId}`);
+            return;
+        }
+    
+        // Update the task object's values
+        taskObject.title = title;
+        taskObject.category = categoryObject;
+        taskObject.dueDate = dueDate;
+        taskObject.priority = importance;
+        taskObject.description = description;
+    
+        // Log the taskId and taskDiv here
+        console.log('editing task, title: ' + title + ' id: ' + taskId);
+        let taskDiv = document.getElementById(taskId);
+    
+        // Update the taskDiv's textContent to reflect the new values
+        taskDiv.querySelector('.taskTitle').textContent = title;
+        taskDiv.querySelector('.taskCategory').textContent = `(${categoryObject.name})`;
+        taskDiv.querySelector('.taskDueDate').textContent = formatDateForInput(dueDate);
+        let taskPriorityImg = taskDiv.querySelector('.symbol');
+            if(importance == "Highest"){taskPriorityImg.src = "./images/warning-333.png"}
+            else if(importance == "High"){taskPriorityImg.src = "./images/warning-222.png"}
+            else if(importance == "Medium"){taskPriorityImg.src = "./images/warning-111.png"}
+            else {taskPriorityImg.src = "./images/warning_grey.png"}
+    
+        delete titleInput.dataset.editingTaskId;
+        modal.style.display = "none";
+        filterTasksByDateAndCategory(selectedEndDate, selectedCategory);
+    }
+    selectedCategory = categorySelect.value;
+    selectedCategoryBtn = document.getElementById(selectedCategory);
 
+    console.log(selectedCategoryBtn);
+    filterPageChanges(selectedCategoryBtn);
   });
+
   deleteBtnModal.addEventListener('click', function(event) {
       event.stopPropagation();
   
@@ -317,6 +322,7 @@ export function initializeTaskEventListeners(){
       delete titleInput.dataset.editingTaskId;
   }
 }
+
 export function initializeCatEventListeners(){
   newCatBtn.addEventListener('click', function() {
       currentMode = 'new';
@@ -448,8 +454,8 @@ export function initializeCatEventListeners(){
     });
 };
 export function initializeDefaultFilters(){
-  currentCategory.classList.add('selectedFilter')
-  filterPageChanges(currentCategory);
+  selectedCategoryBtn.classList.add('selectedFilter')
+  filterPageChanges(selectedCategoryBtn);
   let currentTimeline = document.getElementById('allBtn');
   currentTimeline.classList.add('selectedFilter')
 };
@@ -581,7 +587,4 @@ export function initializeDisplaySettings(){
       }
   });
   
-}
-
-
-
+};

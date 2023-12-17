@@ -100,12 +100,11 @@ li{
     width: auto;
     transition: transform 0.3s ease; /* for smooth transition */
 }
-
+    
 [id="All Inbox"]{background-color: #7b7b7b; color: white;}
 [id="Responsibilities"]{background-color: #947741; color: white;}
 [id="Events & Social"]{background-color: #b0a529; color: white;}
 [id="Programming Course"]{background-color: #458b62; color: white;}
-
 .selectedFilter{
     border: 3px solid;
     border-color: rgb(255, 255, 255);
