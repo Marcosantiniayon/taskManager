@@ -328,15 +328,21 @@ export function initializeCatEventListeners(){
       catModal.style.display = "block";
       catTitle.value = "";
       colorDisplay.style.backgroundColor = '#8a59b9';
+      console.log(colorDisplay.style.backgroundColor);
 
    });
    okCatBtn.addEventListener('click', function(event) {
        event.preventDefault(); // Prevent the form from submitting
 
        if (currentMode === 'new') {
+
            // Get the category name and color from the form inputs
            let catTitle = document.getElementById('catTitle').value;
            let catColor = document.getElementById('colorPicker').value;
+
+           //Set default cat color picker
+           catColor = colorDisplay.style.backgroundColor;
+           console.log(catColor);
    
            // Create a new category instance
            let newCategory = new Category(catTitle, catColor);
@@ -352,9 +358,13 @@ export function initializeCatEventListeners(){
            newButton.dataset.catId = newCategory.catId;
    
            if (isDarkColor(catColor)) {
-               newButton.style.color = 'white';
+            console.log(catColor);
+            console.log('dark');
+            newButton.style.color = 'white';
            } else {
-               newButton.style.color = 'black';
+            console.log(catColor);
+            console.log('light');
+            newButton.style.color = 'black';
            }
            
         newCategoryElement.appendChild(newButton);

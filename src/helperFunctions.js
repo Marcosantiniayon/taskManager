@@ -4,21 +4,24 @@ export function getCurrentDate(){
     return today;
   }
 export function isDarkColor(color) {
-  // Convert hex color to rgb
   let rgb;
   if (color.startsWith('#')) {
       let r = parseInt(color.slice(1, 3), 16);
       let g = parseInt(color.slice(3, 5), 16);
       let b = parseInt(color.slice(5, 7), 16);
       rgb = { r, g, b };
-  } else {
-      // Assume it's already an rgb color
-      rgb = color;
+  } else if (color.startsWith('rgb(')) {
+    // Extract RGB values from an RGB string
+    let values = color.substring(4, color.length - 1).split(',');
+    let r = parseInt(values[0], 10);
+    let g = parseInt(values[1], 10);
+    let b = parseInt(values[2], 10);
+    rgb = { r, g, b };
   }
 
   // Calculate brightness on a scale from 0 to 255
   let brightness = Math.round(((rgb.r * 299) + (rgb.g * 587) + (rgb.b * 114)) / 1000);
-  
+  console.log(brightness);
   return brightness < 170; // Return true if the color is dark
 }
 export function formatDateForInput(dateString) {
@@ -38,7 +41,6 @@ export function rgbToHex(rgb) {
   let hexColor = "#" + ("0" + parseInt(values[1], 10).toString(16)).slice(-2) +
                     ("0" + parseInt(values[2], 10).toString(16)).slice(-2) +
                     ("0" + parseInt(values[3], 10).toString(16)).slice(-2);
-  console.log(hexColor);
   return hexColor;
 }
   
