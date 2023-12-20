@@ -332,12 +332,6 @@ export function initializeCatEventListeners(){
    });
    okCatBtn.addEventListener('click', function(event) {
        event.preventDefault(); // Prevent the form from submitting
-   
-       // Get the RGB color & convert to hex. Then set the colorPicker value to the hex
-        let rgbColor = colorDisplay.style.backgroundColor;
-        let hexColor = rgbToHex(rgbColor);
-        colorDisplay.style.background = hexColor;
-        colorPicker.value = hexColor;
 
        if (currentMode === 'new') {
            // Get the category name and color from the form inputs
@@ -447,7 +441,10 @@ export function initializeCatEventListeners(){
        }
    });
    colorDisplay.addEventListener('click', function() {
-    console.log(colorDisplay.style.backgroundColor);
+    // Get the RGB color & convert to hex. Then set the colorPicker value to the hex
+    let rgbColor = colorDisplay.style.backgroundColor;
+    let hexColor = rgbToHex(rgbColor);
+    colorPicker.value = hexColor;
     colorPicker.click();
       
     });

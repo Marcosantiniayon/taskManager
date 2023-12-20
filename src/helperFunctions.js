@@ -38,7 +38,7 @@ export function rgbToHex(rgb) {
   let hexColor = "#" + ("0" + parseInt(values[1], 10).toString(16)).slice(-2) +
                     ("0" + parseInt(values[2], 10).toString(16)).slice(-2) +
                     ("0" + parseInt(values[3], 10).toString(16)).slice(-2);
-
+  console.log(hexColor);
   return hexColor;
 }
   
