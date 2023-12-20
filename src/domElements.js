@@ -322,7 +322,6 @@ export function initializeTaskEventListeners(){
       delete titleInput.dataset.editingTaskId;
   }
 }
-
 export function initializeCatEventListeners(){
   newCatBtn.addEventListener('click', function() {
       currentMode = 'new';
@@ -426,7 +425,10 @@ export function initializeCatEventListeners(){
            });
        }
    });
-   cancelCatBtn.addEventListener('click', function() {    
+   cancelCatBtn.addEventListener('click', function(event) {    
+    event.preventDefault();
+    catModal.style.display = "none";
+
    });
    pageTitle.addEventListener('click', function(){
        catID = parseInt(this.dataset.catId);
@@ -566,7 +568,7 @@ export function initializeDisplaySettings(){
         }
       }
     });
-  span.onclick = function() { // Closes modal on clicking X
+  span.onclick = function() { // Closes task modal on clicking X
       modal.style.display = "none";
       delete titleInput.dataset.editingTaskId;
   }; 

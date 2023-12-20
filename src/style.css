@@ -20,7 +20,8 @@ button{
     text-align: center;
 }
 button:hover{
-    background-color: rgb(224, 220, 241);
+    /* background-color: rgb(224, 220, 241); */
+    
 }
 .symbol, #priority{
     height: 20px;
@@ -83,7 +84,8 @@ li{
 }
 .timelineBtns{
     margin: 8px;
-    background-color: white;
+    color: white;
+    background-color: rgba(0, 0, 0, 0.4)
 }
 #newCatBtn{
     margin: 12px;
@@ -108,9 +110,10 @@ li{
 .selectedFilter{
     border: 3px solid;
     border-color: rgb(255, 255, 255);
-    background-color: rgb(207, 202, 232);
+    /* background-color: rgb(207, 202, 232); */
     transform: scale(1.05)
 }
+
 /* ------------------------------------------------- */
 .content{
     background-color: white;
