@@ -40,10 +40,9 @@ let prioritySelect = document.getElementById("priority");
 let descriptionInput = document.getElementById("description");
 let categoryButtons = document.querySelectorAll('.catBtns');
 
-// let defaultCategory = document.getElementById('All Inbox');
 let selectedCategory = 'All Inbox';
 let selectedCategoryBtn = document.getElementById(selectedCategory);
-let selectedEndDate = getCurrentDate();
+let selectedEndDate = null;
 
 export {
   content, nav,modal,span,catModal, spanCatModal,tasksContainer,form,pageTitle,collapseBtn,createTaskBtn,okTaskBtn,cancelTaskBtn,deleteBtnModal,newCatBtn,okCatBtn,cancelCatBtn,inboxBtn,responsibilitiesBtn,eventsBtn,programmingBtn,titleInput,categorySelect,dueDateSelect,prioritySelect,descriptionInput,categoryButtons,allBtn, todayBtn, thisWeekBtn, thisMonthBtn, pageTimeline, colorPicker, colorDisplay  
@@ -252,10 +251,12 @@ export function initializeTaskEventListeners(){
         modal.style.display = "none";
         filterTasksByDateAndCategory(selectedEndDate, selectedCategory);
     }
+    
     selectedCategory = categorySelect.value;
-    selectedCategoryBtn = document.getElementById(selectedCategory);
+    selectFilter(selectedCategory);
 
     console.log(selectedCategoryBtn);
+    filterTasksByDateAndCategory(selectedEndDate, selectedCategory);
     filterPageChanges(selectedCategoryBtn);
   });
 
@@ -370,7 +371,7 @@ export function initializeCatEventListeners(){
         newCategoryElement.appendChild(newButton);
         document.getElementById('categoriesList').appendChild(newCategoryElement);
         initializeCatFilterEvListeners();
-    } else if (currentMode === 'edit') {
+       } else if (currentMode === 'edit') {
            //Retrieve the category from the categories array based on the catID
            console.log(catID);
            if (typeof catID !== "number") {
@@ -410,10 +411,10 @@ export function initializeCatEventListeners(){
            pageTitle.style.backgroundColor = colorPicker.value;
        }
        updateCategoryDropdown();
-      //  filterBtnsEvListeners();
    
        catModal.style.display = "none";
    
+       // Helper Function
        function updateCategoryDropdown() {
            // Clear any existing options
            let categorySelect = document.getElementById('category');
@@ -506,7 +507,6 @@ export function initializeTimeFilterEvListeners(){
       allBtn.classList.add('selectedFilter');
       pageTimeline.textContent = this.textContent;
       allBtn.classList.add('selectedFilter');
-
   });
 };
 export function initializeCatFilterEvListeners(){
@@ -514,21 +514,11 @@ export function initializeCatFilterEvListeners(){
   categoryButtons = document.querySelectorAll('.catBtns'); 
   categoryButtons.forEach((catBtn) => {
     catBtn.addEventListener('click', function() {
-        // Remove 'selectedFilter' class from all category buttons
-        categoryButtons.forEach((button) => {
-            button.classList.remove('selectedFilter');
-        });
-  
-        // Add 'selectedFilter' class to the clicked button
-        this.classList.add('selectedFilter');
-  
         // Set selectedCategory to the clicked button's text content
         selectedCategory = this.textContent;
         catID = parseInt(this.dataset.catId);
-  
-        // Set styling to page title
+        selectFilter(selectedCategory)
         filterPageChanges(this);
-        // Apply the filter
         filterTasksByDateAndCategory(selectedEndDate, selectedCategory, catID);
     });
   }); 
@@ -597,3 +587,14 @@ export function initializeDisplaySettings(){
   });
   
 };
+
+function selectFilter(selectedCategory){
+    // Remove 'selectedFilter' class from all category buttons
+    categoryButtons.forEach((button) => {
+        button.classList.remove('selectedFilter');
+    });
+    selectedCategoryBtn = document.getElementById(selectedCategory);
+    // Add 'selectedFilter' class to the clicked button
+    selectedCategoryBtn.classList.add('selectedFilter');
+    return selectedCategoryBtn;
+}
