@@ -1,6 +1,6 @@
 import { Task, taskCounter } from "./taskFunctions";
 import { getCurrentDate, formatDateForInput, isDarkColor, rgbToHex } from "./helperFunctions";
-import { filterPageChanges, removeFilters, filterTasksByDateAndCategory } from "./displayFunctions";
+import { updatePageTitle, removeFilters, filterTasksByDateAndCategory} from "./displayFunctions";
 import { Category, categories, catID, currentMode } from "./categoryFunctions";
 
 
@@ -193,8 +193,7 @@ export function initializeTaskEventListeners(){
             taskContainerDiv.appendChild(taskBigDiv);taskContainerDiv.appendChild(linebreak);tasksContainer.appendChild(taskContainerDiv);    
         } addTaskDiv(taskId, title, category, dueDate, taskCounter, prioritySelect);
         
-        filterTasksByDateAndCategory(selectedEndDate, selectedCategory);
-    
+        //Helper Function
         function openTaskModalForEditing(task){
             console.log(task);
             // Set the form inputs to the task's values
@@ -249,15 +248,14 @@ export function initializeTaskEventListeners(){
     
         delete titleInput.dataset.editingTaskId;
         modal.style.display = "none";
-        filterTasksByDateAndCategory(selectedEndDate, selectedCategory);
     }
     
     selectedCategory = categorySelect.value;
-    selectFilter(selectedCategory);
+    selectCatFilter(selectedCategory);
 
     console.log(selectedCategoryBtn);
-    filterTasksByDateAndCategory(selectedEndDate, selectedCategory);
-    filterPageChanges(selectedCategoryBtn);
+    // filterTasksByDateAndCategory(selectedEndDate, selectedCategory);
+    updatePageTitle(selectedCategoryBtn);
   });
 
   deleteBtnModal.addEventListener('click', function(event) {
@@ -465,7 +463,7 @@ export function initializeCatEventListeners(){
 };
 export function initializeDefaultFilters(){
   selectedCategoryBtn.classList.add('selectedFilter')
-  filterPageChanges(selectedCategoryBtn);
+  updatePageTitle(selectedCategoryBtn);
   let currentTimeline = document.getElementById('allBtn');
   currentTimeline.classList.add('selectedFilter')
 };
@@ -474,7 +472,7 @@ export function initializeTimeFilterEvListeners(){
   todayBtn.addEventListener('click', function () {
     const today = getCurrentDate();
     selectedEndDate = today;
-    filterTasksByDateAndCategory(selectedEndDate, selectedCategory);
+    // filterTasksByDateAndCategory(selectedEndDate, selectedCategory);
     removeFilters();
     todayBtn.classList.add('selectedFilter');
     pageTimeline.textContent = this.textContent;
@@ -485,7 +483,7 @@ export function initializeTimeFilterEvListeners(){
       const oneWeekLater = new Date();
       oneWeekLater.setDate(today.getDate() + 7);
       selectedEndDate = oneWeekLater;
-      filterTasksByDateAndCategory(selectedEndDate, selectedCategory);
+    //   filterTasksByDateAndCategory(selectedEndDate, selectedCategory);
       removeFilters();
       thisWeekBtn.classList.add('selectedFilter');
       pageTimeline.textContent = this.textContent;
@@ -495,14 +493,14 @@ export function initializeTimeFilterEvListeners(){
       const oneMonthLater = new Date();
       oneMonthLater.setDate(today.getDate() + 30);
       selectedEndDate = oneMonthLater;
-      filterTasksByDateAndCategory(selectedEndDate, selectedCategory);
+    //   filterTasksByDateAndCategory(selectedEndDate, selectedCategory);
       removeFilters();
       thisMonthBtn.classList.add('selectedFilter');
       pageTimeline.textContent = this.textContent;
   });
   allBtn.addEventListener('click', function () {
       selectedEndDate = null;
-      filterTasksByDateAndCategory(selectedEndDate, selectedCategory)
+    //   filterTasksByDateAndCategory(selectedEndDate, selectedCategory)
       removeFilters();
       allBtn.classList.add('selectedFilter');
       pageTimeline.textContent = this.textContent;
@@ -517,9 +515,8 @@ export function initializeCatFilterEvListeners(){
         // Set selectedCategory to the clicked button's text content
         selectedCategory = this.textContent;
         catID = parseInt(this.dataset.catId);
-        selectFilter(selectedCategory)
-        filterPageChanges(this);
-        filterTasksByDateAndCategory(selectedEndDate, selectedCategory, catID);
+        selectCatFilter(selectedCategory);
+        // filterTasksByDateAndCategory(selectedEndDate, selectedCategory, catID);
     });
   }); 
 }
@@ -588,13 +585,19 @@ export function initializeDisplaySettings(){
   
 };
 
-function selectFilter(selectedCategory){
+function selectCatFilter(selectedCategory){
     // Remove 'selectedFilter' class from all category buttons
     categoryButtons.forEach((button) => {
         button.classList.remove('selectedFilter');
     });
+    // Get and add 'selectedFilter' class to the clicked button
     selectedCategoryBtn = document.getElementById(selectedCategory);
-    // Add 'selectedFilter' class to the clicked button
     selectedCategoryBtn.classList.add('selectedFilter');
+    updatePageTitle(selectedCategoryBtn);
+
     return selectedCategoryBtn;
+}
+
+function selectTimeFilter(selectedEndDate){
+
 }
