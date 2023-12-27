@@ -1,6 +1,6 @@
 import { Task, taskCounter } from "./taskFunctions";
 import { getCurrentDate, formatDateForInput, isDarkColor, rgbToHex } from "./helperFunctions";
-import { updatePageTitle, removeFilters, filterTasksByDateAndCategory} from "./displayFunctions";
+import { updatePageTitle, removeFilters, updatePageTasks} from "./displayFunctions";
 import { Category, categories, catID, currentMode } from "./categoryFunctions";
 
 
@@ -39,10 +39,14 @@ let dueDateSelect = document.getElementById("dueDate");
 let prioritySelect = document.getElementById("priority");
 let descriptionInput = document.getElementById("description");
 let categoryButtons = document.querySelectorAll('.catBtns');
+let timelineButtons = document.querySelectorAll('.timelineBtns');
 
 let selectedCategory = 'All Inbox';
 let selectedCategoryBtn = document.getElementById(selectedCategory);
-let selectedEndDate = null;
+let selectedTimeline = null;
+let selectedTimelineBtn = document.getElementById("allBtn");
+
+const today = getCurrentDate();
 
 export {
   content, nav,modal,span,catModal, spanCatModal,tasksContainer,form,pageTitle,collapseBtn,createTaskBtn,okTaskBtn,cancelTaskBtn,deleteBtnModal,newCatBtn,okCatBtn,cancelCatBtn,inboxBtn,responsibilitiesBtn,eventsBtn,programmingBtn,titleInput,categorySelect,dueDateSelect,prioritySelect,descriptionInput,categoryButtons,allBtn, todayBtn, thisWeekBtn, thisMonthBtn, pageTimeline, colorPicker, colorDisplay  
@@ -52,7 +56,7 @@ export function initializeTaskEventListeners(){
   createTaskBtn.addEventListener('click', function() { // Brings up new task modal 
       // Set default inputs
       titleInput.value = "";
-      categorySelect.value = "All Inbox";
+      categorySelect.value = selectedCategory;
       let today = new Date();
       let dd = String(today.getDate()).padStart(2, '0');
       let mm = String(today.getMonth() + 1).padStart(2, '0');
@@ -104,7 +108,6 @@ export function initializeTaskEventListeners(){
         let newTask = new Task(taskCounter, title, categoryObject, dueDate, importance, description);
     
         taskCounter++;
-        console.log(categoryObject);
         categoryObject.addTaskToCat(newTask);
         let taskId = newTask.id
         
@@ -249,12 +252,11 @@ export function initializeTaskEventListeners(){
         delete titleInput.dataset.editingTaskId;
         modal.style.display = "none";
     }
-    
+    selectedTimeline = null;
+    selectedTimelineBtn = allBtn;
+    selectTimeFilter(selectedTimeline, selectedTimelineBtn);
     selectedCategory = categorySelect.value;
     selectCatFilter(selectedCategory);
-
-    console.log(selectedCategoryBtn);
-    // filterTasksByDateAndCategory(selectedEndDate, selectedCategory);
     updatePageTitle(selectedCategoryBtn);
   });
 
@@ -470,41 +472,33 @@ export function initializeDefaultFilters(){
 export function initializeTimeFilterEvListeners(){
   //Timeline buttons event listeners
   todayBtn.addEventListener('click', function () {
-    const today = getCurrentDate();
-    selectedEndDate = today;
-    // filterTasksByDateAndCategory(selectedEndDate, selectedCategory);
-    removeFilters();
-    todayBtn.classList.add('selectedFilter');
+    selectedTimeline = today;
+    selectedTimelineBtn = todayBtn;
+    selectTimeFilter(selectedTimeline, selectedTimelineBtn);
     pageTimeline.textContent = this.textContent;
 
 });
   thisWeekBtn.addEventListener('click', function () {
-      const today = getCurrentDate();
       const oneWeekLater = new Date();
       oneWeekLater.setDate(today.getDate() + 7);
-      selectedEndDate = oneWeekLater;
-    //   filterTasksByDateAndCategory(selectedEndDate, selectedCategory);
-      removeFilters();
-      thisWeekBtn.classList.add('selectedFilter');
+      selectedTimeline = oneWeekLater;
+      selectedTimelineBtn = thisWeekBtn;
+      selectTimeFilter(selectedTimeline, selectedTimelineBtn);
       pageTimeline.textContent = this.textContent;
   });
   thisMonthBtn.addEventListener('click', function () {
-      const today = getCurrentDate();
       const oneMonthLater = new Date();
       oneMonthLater.setDate(today.getDate() + 30);
-      selectedEndDate = oneMonthLater;
-    //   filterTasksByDateAndCategory(selectedEndDate, selectedCategory);
-      removeFilters();
-      thisMonthBtn.classList.add('selectedFilter');
+      selectedTimeline = oneMonthLater;
+      selectedTimelineBtn = thisMonthBtn;
+      selectTimeFilter(selectedTimeline, selectedTimelineBtn);
       pageTimeline.textContent = this.textContent;
   });
   allBtn.addEventListener('click', function () {
-      selectedEndDate = null;
-    //   filterTasksByDateAndCategory(selectedEndDate, selectedCategory)
-      removeFilters();
-      allBtn.classList.add('selectedFilter');
+      selectedTimeline = null;
+      selectedTimelineBtn = allBtn;
+      selectTimeFilter(selectedTimeline, selectedTimelineBtn);
       pageTimeline.textContent = this.textContent;
-      allBtn.classList.add('selectedFilter');
   });
 };
 export function initializeCatFilterEvListeners(){
@@ -516,7 +510,6 @@ export function initializeCatFilterEvListeners(){
         selectedCategory = this.textContent;
         catID = parseInt(this.dataset.catId);
         selectCatFilter(selectedCategory);
-        // filterTasksByDateAndCategory(selectedEndDate, selectedCategory, catID);
     });
   }); 
 }
@@ -590,14 +583,28 @@ function selectCatFilter(selectedCategory){
     categoryButtons.forEach((button) => {
         button.classList.remove('selectedFilter');
     });
+
     // Get and add 'selectedFilter' class to the clicked button
     selectedCategoryBtn = document.getElementById(selectedCategory);
     selectedCategoryBtn.classList.add('selectedFilter');
-    updatePageTitle(selectedCategoryBtn);
 
+    // Update Page
+    updatePageTitle(selectedCategoryBtn);
+    updatePageTasks(selectedTimeline, selectedCategory);
     return selectedCategoryBtn;
 }
 
-function selectTimeFilter(selectedEndDate){
+function selectTimeFilter(selectedTimeline, selectedTimelineBtn){
+    console.log(selectedTimelineBtn);
+    // Remove 'selectedFilter' class from all timeline buttons
+    timelineButtons.forEach((button) => {
+        button.classList.remove('selectedFilter');
+    });
 
+    // Update Page
+    updatePageTitle(selectedCategoryBtn);
+    updatePageTasks(selectedTimeline, selectedCategory);
+    
+    selectedTimelineBtn.classList.add('selectedFilter');
+    return selectedTimelineBtn;
 }
