@@ -1,6 +1,6 @@
 import { Task, taskCounter } from "./taskFunctions";
 import { getCurrentDate, formatDateForInput, isDarkColor, rgbToHex } from "./helperFunctions";
-import { updatePageTitle, removeFilters, updatePageTasks} from "./displayFunctions";
+import { updatePageTitle, updatePageTasks} from "./displayFunctions";
 import { Category, categories, catID, currentMode } from "./categoryFunctions";
 
 
@@ -52,7 +52,7 @@ export {
   content, nav,modal,span,catModal, spanCatModal,tasksContainer,form,pageTitle,collapseBtn,createTaskBtn,okTaskBtn,cancelTaskBtn,deleteBtnModal,newCatBtn,okCatBtn,cancelCatBtn,inboxBtn,responsibilitiesBtn,eventsBtn,programmingBtn,titleInput,categorySelect,dueDateSelect,prioritySelect,descriptionInput,categoryButtons,allBtn, todayBtn, thisWeekBtn, thisMonthBtn, pageTimeline, colorPicker, colorDisplay  
 };
 
-export function initializeTaskEventListeners(){
+export function taskEvListeners(){
   createTaskBtn.addEventListener('click', function() { // Brings up new task modal 
       // Set default inputs
       titleInput.value = "";
@@ -323,7 +323,7 @@ export function initializeTaskEventListeners(){
       delete titleInput.dataset.editingTaskId;
   }
 }
-export function initializeCatEventListeners(){
+export function catEvListeners(){
   newCatBtn.addEventListener('click', function() {
       currentMode = 'new';
       catModal.style.display = "block";
@@ -463,13 +463,13 @@ export function initializeCatEventListeners(){
       colorDisplay.style.background = colorPicker.value;
     });
 };
-export function initializeDefaultFilters(){
+export function setDefaultFilters(){
   selectedCategoryBtn.classList.add('selectedFilter')
+  selectedTimelineBtn.classList.add('selectedFilter')
   updatePageTitle(selectedCategoryBtn);
-  let currentTimeline = document.getElementById('allBtn');
-  currentTimeline.classList.add('selectedFilter')
+  updatePageTasks(selectedTimeline, selectedCategory);
 };
-export function initializeTimeFilterEvListeners(){
+export function timeFilterEvListeners(){
   //Timeline buttons event listeners
   todayBtn.addEventListener('click', function () {
     selectedTimeline = today;
@@ -501,7 +501,7 @@ export function initializeTimeFilterEvListeners(){
       pageTimeline.textContent = this.textContent;
   });
 };
-export function initializeCatFilterEvListeners(){
+export function catFilterEvListeners(){
   //Reselect category buttons to pick up any newly added one  
   categoryButtons = document.querySelectorAll('.catBtns'); 
   categoryButtons.forEach((catBtn) => {
@@ -513,7 +513,7 @@ export function initializeCatFilterEvListeners(){
     });
   }); 
 }
-export function initializeDisplaySettings(){
+export function displaySettings(){
   collapseBtn.addEventListener('click', function() { // Nav Collapse & Expand
       const navDisplayStyle = window.getComputedStyle(nav).display;
       const screenWidth = window.innerWidth;

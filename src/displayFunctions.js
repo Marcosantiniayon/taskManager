@@ -54,11 +54,4 @@ export function updatePageTasks(selectedTimeline, selectedCategory) {
   });
 };
 
-export function removeFilters(){
-    thisWeekBtn.classList.remove('selectedFilter');
-    thisMonthBtn.classList.remove('selectedFilter');
-    allBtn.classList.remove('selectedFilter');
-    todayBtn.classList.remove('selectedFilter');
-}
-
 
