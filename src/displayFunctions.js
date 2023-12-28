@@ -16,7 +16,7 @@ export function updatePageTitle(selectedCategoryBtn){
 }
 
 export function updatePageTasks(selectedTimeline, selectedCategory) {
-  // Loop through all taskContainerDiv elements and check their tasks' due dates
+  // Loop through all taskContainerDiv elements 
   const allTaskContainerDivs = document.querySelectorAll('.taskContainerDiv');
   allTaskContainerDivs.forEach((taskContainerDiv) => {
       const taskDiv = taskContainerDiv.querySelector('.taskDiv'); // Get the taskDiv inside the current taskContainerDiv
@@ -53,5 +53,26 @@ export function updatePageTasks(selectedTimeline, selectedCategory) {
         }
   });
 };
+
+export function sort(sortOption){
+  const taskDivArray = []; // Create an empty array to store taskDivs
+
+  // Loop through all taskContainerDiv elements 
+  const allTaskContainerDivs = document.querySelectorAll('.taskContainerDiv');
+  allTaskContainerDivs.forEach((taskContainerDiv) => {
+      const taskDiv = taskContainerDiv.querySelector('.taskDiv'); 
+      if(taskDiv){
+        taskDivArray.push(taskDiv); // Push the taskDiv into the array if it exists
+      }
+      // const taskId = taskDiv.dataset.taskId;
+      // const task = getTaskById(taskId); // Retrieve the task object by ID
+  });
+  console.log(taskDivArray);
+
+
+  //default sort
+
+
+}
 
 

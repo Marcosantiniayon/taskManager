@@ -1,6 +1,6 @@
 import { Task, taskCounter } from "./taskFunctions";
 import { getCurrentDate, formatDateForInput, isDarkColor, rgbToHex } from "./helperFunctions";
-import { updatePageTitle, updatePageTasks} from "./displayFunctions";
+import { updatePageTitle, updatePageTasks, sort} from "./displayFunctions";
 import { Category, categories, catID, currentMode } from "./categoryFunctions";
 
 
@@ -13,7 +13,7 @@ const collapseBtn = document.getElementById('collapseBtn');
 const sortOptions = document.querySelector('.sortOptions');
 const sortBtn = document.getElementById('sortBtn');
 const dateBtn = document.getElementById('dateBtn');
-const ImportanceBtn = document.getElementById('importanceBtn');
+const importanceBtn = document.getElementById('importanceBtn');
 
 
 const createTaskBtn = document.getElementById('createTask');
@@ -624,4 +624,12 @@ sortBtn.addEventListener('click', function() {
         sortOptions.style.display = 'none'; 
         sortBtn.style.borderRadius = '';
     }
+});
+
+dateBtn.addEventListener('click', function() {
+    sort('date');
+});
+
+importanceBtn.addEventListener('click', function() {
+    sort('importance');
 });
