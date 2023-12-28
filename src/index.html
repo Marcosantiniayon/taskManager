@@ -21,7 +21,6 @@
     </header>
 
     <nav class="sidebar">
-            <button id="All Tasks">All Tasks</button>
         <div class="timelinesDiv">
             <h3>Timelines</h3>
             <ul>
@@ -52,7 +51,14 @@
                 <h2 id ="pageTitle" data-cat-id="1">All Inbox</h2>
                 <h4 id="pageTimeline"> All</h4>
             </div>
-            <button id="sortBtn">Sort</button>
+            <div class="sortMenu">
+                <button id="sortBtn">Sort</button>
+                <div class="sortOptions">
+                    <button id="dateBtn">Date</button>
+                    <hr id="sortHr">
+                    <button id="importanceBtn">Importance</button>
+                </div>
+            </div>
         </div>
         <hr>
         <div class="tasksContainer">

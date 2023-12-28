@@ -12,6 +12,7 @@ hr{
     border-color: rgba(226, 224, 255, 0.3);
 }
 button{
+    background-color:rgb(207, 202, 232);
     height: 28px;
     width: 90px;
     border-radius: 24px;
@@ -20,7 +21,7 @@ button{
     text-align: center;
     transition: transform 0.3s; 
 }
-button:hover{
+.timelineBtns:hover, .catBtns:hover{
     transform: scale(1.2); 
 }
 .symbol, #priority{
@@ -141,8 +142,40 @@ li{
     align-self: center;
     font-style: italic;
 }
+#dateBtn, #importanceBtn{
+    color: white;
+    background-color: rgb(49, 57, 112);
+    height: 23px;
+    border-radius: 0;
+}
+
+#dateBtn:hover, #importanceBtn:hover{
+    background-color: #15a953;
+}
+
+#sortHr{
+    background-color: white;
+    width: 100%;
+    margin: 0;
+}
 #sortBtn{
     justify-self: flex-end;
+    /* margin-top: 80px; */
+}
+.sortMenu{
+    display: flex;
+    flex-direction: column;
+    position: relative; /* Add this for relative positioning */
+}
+.sortOptions{
+    display: none;
+    flex-direction: column;
+    background-color: rgb(49, 57, 112);
+    position: absolute; /* Change to absolute positioning */
+    top: 100%; /* Position below the sort button */
+    left: 0; /* Align with the left edge of the sort menu */
+    width: 100%; /* Make it as wide as the sort menu */
+    z-index: 1; /* Ensure it appears above other content */
 }
 #createTask{
     margin: 12px;

@@ -10,6 +10,12 @@ const modal = document.querySelector('#modal');
 const catModal = document.querySelector('#catModal');
 const tasksContainer = document.querySelector('.tasksContainer');
 const collapseBtn = document.getElementById('collapseBtn');
+const sortOptions = document.querySelector('.sortOptions');
+const sortBtn = document.getElementById('sortBtn');
+const dateBtn = document.getElementById('dateBtn');
+const ImportanceBtn = document.getElementById('importanceBtn');
+
+
 const createTaskBtn = document.getElementById('createTask');
 const okTaskBtn = document.getElementById('okTaskBtn')
 const cancelTaskBtn = document.getElementById('cancelTaskBtn');
@@ -608,3 +614,14 @@ function selectTimeFilter(selectedTimeline, selectedTimelineBtn){
     selectedTimelineBtn.classList.add('selectedFilter');
     return selectedTimelineBtn;
 }
+
+sortBtn.addEventListener('click', function() {
+    if(sortOptions.style.display === 'none'){
+    sortOptions.style.display = 'flex';
+    sortBtn.style.borderRadius = '5px 5px 0px 0px';
+
+    }else {
+        sortOptions.style.display = 'none'; 
+        sortBtn.style.borderRadius = '';
+    }
+});
