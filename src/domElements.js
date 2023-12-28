@@ -171,7 +171,7 @@ export function taskEvListeners(){
                     taskDueDate.classList.add('taskDueDate');
                     taskDueDate.textContent = formatDateForInput(dueDate);
                 const taskPriority = document.createElement('div');
-                    taskPriority.classList.add('taskDueDate');
+                    taskPriority.classList.add('taskPriority');
                 const taskPriorityImg = document.createElement('img');
                 if(prioritySelect.value == "Highest"){taskPriorityImg.src = "./images/warning-333.png"}
                 else if(prioritySelect.value == "High"){taskPriorityImg.src = "./images/warning-222.png"}
