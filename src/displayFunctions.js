@@ -57,22 +57,78 @@ export function updatePageTasks(selectedTimeline, selectedCategory) {
 export function sort(sortOption){
   const taskDivArray = []; // Create an empty array to store taskDivs
 
-  // Loop through all taskContainerDiv elements 
+  // Loop through allTaskContainerDivs and store each taskDiv into the taskDivArray
   const allTaskContainerDivs = document.querySelectorAll('.taskContainerDiv');
   allTaskContainerDivs.forEach((taskContainerDiv) => {
       const taskDiv = taskContainerDiv.querySelector('.taskDiv'); 
-      if(taskDiv){
+      if(taskDiv){ //Get each tasks's data (due date and priority) 
+        getTaskData(taskDiv);
         taskDivArray.push(taskDiv); // Push the taskDiv into the array if it exists
+
+        console.log(taskDiv);
       }
-      // const taskId = taskDiv.dataset.taskId;
-      // const task = getTaskById(taskId); // Retrieve the task object by ID
   });
+
   console.log(taskDivArray);
 
+  if(sortOption === 'date'){
+    console.log('date clicked');
+    // Sort by earliest due date
+    taskDivArray.sort((a, b) => { 
+      //a & b represent the task div. 
 
-  //default sort
+      // Get the taskDueDate from taskData property for each task div (a &b)
+      const dueDateA = new Date(a.taskData.taskDueDate);
+      const dueDateB = new Date(b.taskData.taskDueDate);
 
+      // Compare the due dates
+      return dueDateA - dueDateB;
+    });
+  } else if(sortOption === 'priority'){
+    console.log('priority clicked');
+    // Sort taskDivArray by taskPriority
+    taskDivArray.sort((a, b) => {
+      // Get the taskPriority from taskData property and convert it to a numeric value
+      const priorityValueA = getPriorityValue(a.taskData.taskPriority);
+      const priorityValueB = getPriorityValue(b.taskData.taskPriority);
+
+      // Compare the priority values
+      return priorityValueA - priorityValueB;
+    });
+  }
+
+
+  // Helper function
+  function getTaskData(taskDiv){
+    // Get the taskDueDate and taskPriority elements within the taskDiv
+    const taskDueDate = taskDiv.querySelector('.taskDueDate').innerHTML;
+    const taskPriority = taskDiv.querySelector('.taskPriority').innerHTML;
+  
+    // Add taskData as a property of the taskDiv element
+    taskDiv.taskData = {
+      taskDueDate,
+      taskPriority,
+    };
+  }
+
+  function getPriorityValue(taskPriority){
+    switch (taskPriority) {
+      case "./images/warning-333.png":
+          return 1;
+      case "./images/warning-222.png":
+          return 2;
+      case "./images/warning-111.png":
+          return 3;
+      case "./images/warning_grey.png":
+          return 4;
+      default:
+          return 0; // Default value for undefined or other sources
+    }
+  }
 
 }
+
+
+
 
 

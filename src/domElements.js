@@ -631,5 +631,5 @@ dateBtn.addEventListener('click', function() {
 });
 
 importanceBtn.addEventListener('click', function() {
-    sort('importance');
+    sort('priority');
 });
