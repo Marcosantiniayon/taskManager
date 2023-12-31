@@ -104,15 +104,121 @@ export function sort(sortOption){
   }
   console.log(taskDivArray);
 
+  // Delete all current elements of class 'taskContainerDiv'
+  const taskContainerDivs = document.querySelectorAll('.taskContainerDiv');
+  taskContainerDivs.forEach((taskContainerDiv) => {
+      taskContainerDiv.parentNode.removeChild(taskContainerDiv);
+  });
+
+  const tasksContainer = document.querySelector('.tasksContainer');
+
+  // Iterate through the sorted taskDivArray and create new taskContainerDivs
+  taskDivArray.forEach((task, index) => {
+    const taskContainerDiv = document.createElement('div');
+    taskContainerDiv.classList.add('taskContainerDiv');
+
+    const taskBigDiv = document.createElement('div');
+            taskBigDiv.classList.add('taskBigDiv');
+            const taskDiv = document.createElement('div');
+            taskDiv.classList.add('taskDiv');
+            taskDiv.id = (index + 1).toString();
+            taskDiv.dataset.taskId = taskDiv.id;
+    
+            taskDiv.addEventListener('click', function() {
+                openTaskModalForEditing(newTask);
+            });
+            const taskPrim = document.createElement('div');
+                taskPrim.classList.add('taskPrim');
+            taskDiv.appendChild(taskPrim);
+                const checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.addEventListener('click', function(event) {
+                    event.stopPropagation();
+                    if (this.checked) {
+                    taskTitle.classList.add('complete');
+                    taskCategory.classList.add('complete');
+                    taskDueDate.classList.add('complete');
+                    taskPriority.classList.add('complete');
+                    } else {
+                        taskTitle.classList.remove('complete');
+                        taskCategory.classList.remove('complete');
+                    taskDueDate.classList.remove('complete');
+                    taskPriority.classList.remove('complete');
+                    }
+                    });
+    
+                const taskTitle = document.createElement('div');
+                    taskTitle.classList.add('taskTitle');
+                    taskTitle.textContent = task.taskTitle;
+                const taskCategory = document.createElement('div');
+                    taskCategory.classList.add('taskCategory');
+                    taskCategory.textContent = "(" + task.category + ")";
+    
+                taskPrim.appendChild(checkbox);taskPrim.appendChild(taskTitle);taskPrim.appendChild(taskCategory);
+    
+            const taskSec = document.createElement('div');
+                taskSec.classList.add('taskSec');
+            taskDiv.appendChild(taskSec);
+    
+                const taskDueDate = document.createElement('div');
+                    taskDueDate.classList.add('taskDueDate');
+                    taskDueDate.textContent = task.taskDueDate
+                const taskPriority = document.createElement('div');
+                    taskPriority.classList.add('taskPriority');
+                const taskPriorityImg = document.createElement('img');
+
+                // Get the taskPriority img elements from the taskDiv elements
+                const priorityImg = task.querySelector('.taskPriority img');
+
+                // Extract the src attribute value from the img elements
+                const prioritySource = priorityImg ? priorityImg.getAttribute('src') : '';
+
+                // Get the taskPriority from taskData property and convert it to a numeric value
+                const priorityValue = getPriorityValue(prioritySource);
+                
+                if(priorityValue == 3){taskPriorityImg.src = "./images/warning-333.png"}
+                else if(priorityValue == 2){taskPriorityImg.src = "./images/warning-222.png"}
+                else if(priorityValue == 1){taskPriorityImg.src = "./images/warning-111.png"}
+                else {taskPriorityImg.src = "./images/warning_grey.png"}
+                    taskPriorityImg.classList.add('symbol');
+                    taskPriority.appendChild(taskPriorityImg);
+                const deleteBtnBigDiv = document.createElement('img');
+                    deleteBtnBigDiv.id = taskDiv.id;
+                    deleteBtnBigDiv.src = "./images/delete.png"; // Change to your delete image's path
+                    deleteBtnBigDiv.classList.add('symbol');
+    
+                deleteBtnBigDiv.addEventListener('click', function(event) {
+                    event.stopPropagation();
+                    // Get taskId from the editingTaskId data attribute
+                    let taskId = deleteBtnBigDiv.id;
+                    if (!taskId) {
+                        console.log('No task is currently being edited');
+                        return;
+                    } deleteTask(taskDiv.id);
+                });
+    
+                taskSec.appendChild(taskDueDate); taskSec.appendChild(taskPriority);
+                taskBigDiv.appendChild(taskDiv);taskBigDiv.appendChild(deleteBtnBigDiv);
+    
+            const linebreak = document.createElement('hr');
+    
+            taskContainerDiv.appendChild(taskBigDiv);
+            taskContainerDiv.appendChild(linebreak);
+            tasksContainer.appendChild(taskContainerDiv);    
+});
 
   // Helper functions
   function getTaskData(taskDiv){
     // Get the taskDueDate and taskPriority elements within the taskDiv
+    const taskTitle = taskDiv.querySelector('.taskTitle').innerHTML;
+    const taskCategory = taskDiv.querySelector('.taskCategory').innerHTML;
     const taskDueDate = taskDiv.querySelector('.taskDueDate').innerHTML;
     const taskPriority = taskDiv.querySelector('.taskPriority').innerHTML;
   
     // Add taskData as a property of the taskDiv element
     taskDiv.taskData = {
+      taskTitle,
+      taskCategory,
       taskDueDate,
       taskPriority,
     };
