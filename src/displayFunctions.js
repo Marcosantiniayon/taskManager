@@ -64,15 +64,10 @@ export function sort(sortOption){
       if(taskDiv){ //Get each tasks's data (due date and priority) 
         getTaskData(taskDiv);
         taskDivArray.push(taskDiv); // Push the taskDiv into the array if it exists
-
-        console.log(taskDiv);
       }
   });
 
-  console.log(taskDivArray);
-
   if(sortOption === 'date'){
-    console.log('date clicked');
     // Sort by earliest due date
     taskDivArray.sort((a, b) => { 
       //a & b represent the task div. 
@@ -85,20 +80,32 @@ export function sort(sortOption){
       return dueDateA - dueDateB;
     });
   } else if(sortOption === 'priority'){
-    console.log('priority clicked');
     // Sort taskDivArray by taskPriority
-    taskDivArray.sort((a, b) => {
+    taskDivArray.sort((b, a) => {
+
+      // Get the taskPriority img elements from the taskDiv elements
+      const priorityImgA = a.querySelector('.taskPriority img');
+      const priorityImgB = b.querySelector('.taskPriority img');
+
+      // Extract the src attribute value from the img elements
+      const prioritySourceA = priorityImgA ? priorityImgA.getAttribute('src') : '';
+      const prioritySourceB = priorityImgB ? priorityImgB.getAttribute('src') : '';
+
       // Get the taskPriority from taskData property and convert it to a numeric value
-      const priorityValueA = getPriorityValue(a.taskData.taskPriority);
-      const priorityValueB = getPriorityValue(b.taskData.taskPriority);
+      const priorityValueA = getPriorityValue(prioritySourceA);
+      const priorityValueB = getPriorityValue(prioritySourceB);
+
+      console.log(priorityValueA);
+      console.log(priorityValueB);
 
       // Compare the priority values
       return priorityValueA - priorityValueB;
     });
   }
+  console.log(taskDivArray);
 
 
-  // Helper function
+  // Helper functions
   function getTaskData(taskDiv){
     // Get the taskDueDate and taskPriority elements within the taskDiv
     const taskDueDate = taskDiv.querySelector('.taskDueDate').innerHTML;
@@ -110,19 +117,18 @@ export function sort(sortOption){
       taskPriority,
     };
   }
-
-  function getPriorityValue(taskPriority){
-    switch (taskPriority) {
+  function getPriorityValue(taskPrioritySrc){
+    switch (taskPrioritySrc) {
       case "./images/warning-333.png":
-          return 1;
+          return 3;
       case "./images/warning-222.png":
           return 2;
       case "./images/warning-111.png":
-          return 3;
+          return 1;
       case "./images/warning_grey.png":
-          return 4;
+          return 0;
       default:
-          return 0; // Default value for undefined or other sources
+          return -1; // Default value for undefined or other sources
     }
   }
 
