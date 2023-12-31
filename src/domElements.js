@@ -264,6 +264,8 @@ export function taskEvListeners(){
     selectedCategory = categorySelect.value;
     selectCatFilter(selectedCategory);
     updatePageTitle(selectedCategoryBtn);
+    sort('priority');
+    sort('date');
   });
 
   deleteBtnModal.addEventListener('click', function(event) {
