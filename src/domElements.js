@@ -562,7 +562,9 @@ export function displaySettings(){
         //   collapseBtn.style.marginLeft = '12px';
         }
       }
+      
     });
+    
   span.onclick = function() { // Closes task modal on clicking X
       modal.style.display = "none";
       delete titleInput.dataset.editingTaskId;

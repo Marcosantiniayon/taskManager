@@ -62,7 +62,7 @@ export function sort(sortOption){
   taskContainerDivs.forEach((taskContainerDiv) => {
       const taskDueDate = taskContainerDiv.querySelector('.taskDueDate').textContent; // Extract taskDueDate
       const taskPriority = taskContainerDiv.querySelector('.taskPriority img').src; // Extract taskPriority
-      const taskPriorityFilename = taskPriority.substring(taskPriority.lastIndexOf('/') + 1);
+      const taskPriorityFilename = taskPriority.substring(taskPriority.lastIndexOf('/') + 1); // Get image for the task priority
 
       // Store the data and the taskContainerDiv for sorting
       dataToSort.push({
@@ -120,7 +120,7 @@ export function sort(sortOption){
 
   // Append the sorted taskContainerDivs back to the parent container in the desired order
   dataToSort.forEach((data) => {
-    parentContainer.appendChild(data.taskContainerDiv);
+    parentContainer.appendChild(data.taskContainerDiv); 
   });
 }
 
