@@ -436,13 +436,6 @@ z-index: 1;
     }
 }
 
-/* @media (min-width: 751px) {
-    nav {
-        display: block ; /* Shown the nav element */
-        z-index: 2;
-        }
-} */
-
 @media (max-width: 750px) {
     nav {
     display: none; /* Hide the nav element */
